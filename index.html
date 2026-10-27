@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JS Logic Lab</title>
+    <meta property="og:image" content="https://bolt.new/static/og_default.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+  </head>
+  <body>
+    <div id="app">
+      <!-- Encabezado Superior -->
+      <header class="main-header">
+        <div class="brand">
+          <div class="logo-container">
+            <svg class="flask-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 3h12" />
+              <path d="M12 3v6" />
+              <path d="M9 9h6" />
+              <path d="M9 9L4.5 19.5A2 2 0 0 0 6.3 22h11.4a2 2 0 0 0 1.8-2.5L15 9" />
+              <path d="M5.5 17h13" stroke-dasharray="2 2" class="liquid-line" />
+            </svg>
+          </div>
+          <h1 class="gradient-title">JS Logic Lab <span class="version">V1.3</span></h1>
+        </div>
+        <div class="notifications" id="contador-progreso">
+          <span class="dot-green">●</span> Cargando progreso...
+        </div>
+      </header>
+      
+      <!-- Panel de Control Reestructurado -->
+      <div class="control-panel">
+        <div class="control-labels">
+          <label>BUSCAR ALGORITMO</label>
+          <label>FILTRAR POR ORIGEN</label>
+          <label>DIFICULTAD GLOBAL</label>
+          <label>SELECCIONAR RETO DISPONIBLE</label>
+        </div>
+        
+        <div class="actions-group">
+          <!-- 🔍 Input de Búsqueda al inicio con Icono integrado por CSS -->
+          <div class="search-wrapper">
+            <input type="text" id="buscador-ejercicios" placeholder="Buscar algoritmo (fizz, loops...)" autocomplete="off" />
+          </div>
+
+          <!-- Selector de Categorías / Orígenes -->
+          <select id="selector-categoria">
+            <option value="TODOS">⚡ Todas las fuentes</option>
+          </select>
+
+          <!-- Selector de Dificultad -->
+          <select id="selector-dificultad">
+            <option value="TODOS">● Dificultad: Todas</option>
+            <option value="FÁCIL">🟢 Fácil</option>
+            <option value="MEDIO">🟡 Medio</option>
+            <option value="DIFÍCIL">🔴 Difícil</option>
+          </select>
+
+          <!-- Selector de Ejercicios Filtrados -->
+          <select id="selector-ejercicios">
+            <!-- Cargado dinámicamente -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Contenedor Dinámico Principal -->
+      <div id="resultado">
+        <div class="placeholder-box">
+          <p>Selecciona un ejercicio del panel superior para inicializar el entorno de pruebas.</p>
+        </div>
+      </div>
+
+      <!-- Barra de Estado Inferior -->
+      <footer class="status-bar">
+        <span>Desafíos de lógica en JavaScript</span>
+        <div class="status-right">
+          <span>Ambiente: <strong>Sandbox V8</strong></span>
+          <span>Memoria: <strong>14.2 MB</strong></span>
+        </div>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
