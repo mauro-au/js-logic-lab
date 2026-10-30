@@ -23,4 +23,20 @@ npm run dev
 ## 📊 Progreso
 
 <!-- EJERCICIOS:START -->
+
+**Total:** 4 ejercicios · **Con diagrama:** 0/4 (0%)
+
+| Origen | Total | 🟢 Fácil | 🟡 Medio | 🔴 Difícil | Diagramas |
+| ------ | ----: | -------: | -------: | ---------: | --------: |
+| mouredev / 2022 | 4 | 2 | 2 | 0 | 0/4 |
+
+## 📚 Ejercicios
+
+| Origen | Ejercicio | Dificultad | Diagrama | Detalle |
+| ------ | --------- | ---------- | :------: | ------- |
+| mouredev / 2022 | [01-fizzbuzz](src/exercises/mouredev/2022/01-fizzbuzz/index.js) | 🟢 Fácil | ❌ | [README](src/exercises/mouredev/2022/01-fizzbuzz/README.md) |
+| mouredev / 2022 | [02-anagrama](src/exercises/mouredev/2022/02-anagrama/index.js) | 🟢 Fácil | ❌ | [README](src/exercises/mouredev/2022/02-anagrama/README.md) |
+| mouredev / 2022 | [03-fibonacci](src/exercises/mouredev/2022/03-fibonacci/index.js) | 🟡 Medio | ❌ | [README](src/exercises/mouredev/2022/03-fibonacci/README.md) |
+| mouredev / 2022 | [04-numero-primo](src/exercises/mouredev/2022/04-numero-primo/index.js) | 🟡 Medio | ❌ | [README](src/exercises/mouredev/2022/04-numero-primo/README.md) |
+
 <!-- EJERCICIOS:END -->
