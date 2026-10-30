@@ -1,12 +1,13 @@
 {
-  "name": "vite-starter",
-  "version": "0.0.0",
+  "name": "js-logic-lab",
   "private": true,
+  "version": "1.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generar-readme": "node scripts/generar-readme.mjs"
   },
   "devDependencies": {
     "vite": "^7.0.0"
