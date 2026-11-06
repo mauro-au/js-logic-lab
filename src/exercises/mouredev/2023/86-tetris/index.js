@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '86';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['arreglos','dibujo','interactivo'];
 
 export const enunciado = `Crea un programa capaz de gestionar una pieza de Tetris.
 - La pantalla de juego tiene 10 filas y 10 columnas representadas por símbolos 🔲

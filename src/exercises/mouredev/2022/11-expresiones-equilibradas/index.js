@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '11';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['strings','arreglos'];
 
 export const enunciado = `Crea un programa que comprueba si los paréntesis, llaves y corchetes
 de una expresión están equilibrados.

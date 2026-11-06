@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '32';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['fechas','bucles'];
 
 export const enunciado = `Crea una función que imprima los 30 próximos años bisiestos
 siguientes a uno dado.

@@ -1,26 +1,37 @@
+<p align="center">
+  <img src="public/favicon.svg" alt="JS Logic Lab" width="84" height="84" />
+</p>
+
 # 🧪 JS Logic Lab
 
-Laboratorio interactivo para practicar lógica de programación en JavaScript. Cada ejercicio incluye su enunciado, solución, diagrama de flujo y ejecución con consola simulada.
+Laboratorio interactivo para practicar lógica de programación en JavaScript. Incluye 101 retos con enunciado, casos de prueba opcionales, soluciones de referencia y una terminal simulada para comparar resultados y tiempos.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/USUARIO/REPO)
-
-![Captura de JS Logic Lab](./docs/captura.png)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mauro-au/js-logic-lab)
 
 ## 🚀 Uso
+
+Requiere Node.js 20.19 o superior.
 
 ```bash
 npm install
 npm run dev
 ```
 
+## 🙏 Créditos
+
+Los 101 retos provienen de [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/), el proyecto de [mouredev](https://github.com/mouredev). Este repositorio es un laboratorio independiente para practicarlos.
+
 ## ➕ Agregar un ejercicio
 
-1. Crea la carpeta `src/exercises/<origen>/<año>/NN-nombre/`.
-2. Copia `src/plantilla.js` como `index.js` dentro de esa carpeta.
-3. Crea su `README.md` y agrega `diagrama.png`.
-4. Ejecuta `npm run generar-readme` para actualizar las tablas de abajo.
+1. Ejecuta `npm run nuevo` (recomendado) o crea la carpeta `src/exercises/<origen>/<año>/NN-nombre/`.
+2. Si lo haces a mano, copia el contenido de `src/plantilla/` como `index.js`, `soluciones.js` y `README.md`.
+3. Completa el enunciado, los casos de prueba y las soluciones.
+4. Si quieres, agrega `diagrama.png` o `diagrama.drawio`.
+5. Ejecuta `npm run generar-readme` para actualizar las tablas de abajo.
 
 ## 📊 Progreso
+
+> Las soluciones de referencia se van completando poco a poco. Los ejercicios sin resolver son plantillas para practicar.
 
 <!-- EJERCICIOS:START -->
 

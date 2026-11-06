@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '25';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['bucles','entrada-salida'];
 
 export const enunciado = `Quiero contar del 1 al 100 de uno en uno (imprimiendo cada uno).
 ¿De cuántas maneras eres capaz de hacerlo?

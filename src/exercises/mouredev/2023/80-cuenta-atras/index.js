@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '80';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['bucles','entrada-salida'];
 
 export const enunciado = `Crea una función que reciba dos parámetros para crear una cuenta atrás.
 - El primero, representa el número en el que comienza la cuenta.

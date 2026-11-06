@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '90';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['strings','matemáticas'];
 
 export const enunciado = `Crea las funciones capaces de transformar colores HEX
 a RGB y viceversa.

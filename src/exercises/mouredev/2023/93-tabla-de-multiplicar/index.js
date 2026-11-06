@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '93';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['matemáticas','bucles'];
 
 export const enunciado = `Crea un programa que sea capaz de solicitarte un número y se
 encargue de imprimir su tabla de multiplicar entre el 1 y el 10.

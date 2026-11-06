@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '79';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['testing'];
 
 export const enunciado = `Crea tres test sobre el reto 12: "Viernes 13".
 - Puedes copiar una solución ya creada por otro usuario en

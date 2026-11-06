@@ -1,4 +1,4 @@
-# 63 · La api (application programming interface)
+# 63 · La API (Application Programming Interface)
 
 ![Dificultad](https://img.shields.io/badge/dificultad-medio-yellow)
 ![Origen](https://img.shields.io/badge/origen-mouredev%202023-blue)
@@ -23,9 +23,7 @@ Fuente: [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/)
 
 ## 🔀 Diagrama de flujo
 
-![Diagrama de flujo](./diagrama.png)
-
-> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._
 
 ## 🧠 Explicación del algoritmo
 

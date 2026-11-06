@@ -29,7 +29,11 @@ function leerDificultad(rutaIndex) {
   const codigo = readFileSync(rutaIndex, 'utf8');
   const m = codigo.match(/export\s+const\s+dificultad\s*=\s*['"`]([^'"`]+)['"`]/);
   const clave = normalizar(m?.[1]);
-  return ETIQUETAS[clave] ? clave : 'MEDIO';
+  if (!ETIQUETAS[clave]) {
+    console.warn(`⚠ Dificultad no reconocida en ${relative(RAIZ, rutaIndex)}; usando MEDIO.`);
+    return 'MEDIO';
+  }
+  return clave;
 }
 
 if (!existsSync(DIR_EJERCICIOS)) throw new Error(`No existe ${DIR_EJERCICIOS}`);

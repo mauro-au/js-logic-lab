@@ -17,9 +17,7 @@ Escribe un programa que imprima los 50 primeros números de la sucesión de Fibo
 
 ## 🔀 Diagrama de flujo
 
-![Diagrama de flujo](./diagrama.png)
-
-> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._
 
 ## 🧠 Explicación del algoritmo
 

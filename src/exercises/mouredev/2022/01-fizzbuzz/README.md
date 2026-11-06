@@ -17,9 +17,7 @@ Escribe un programa que muestre por consola los números del 1 al 100.
 
 ## 🔀 Diagrama de flujo
 
-![Diagrama de flujo](./diagrama.png)
-
-> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._
 
 ## 🧠 Explicación del algoritmo
 

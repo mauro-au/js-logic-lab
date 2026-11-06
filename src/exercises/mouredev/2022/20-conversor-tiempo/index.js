@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '20';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['matemáticas'];
 
 export const enunciado = `Crea una función que reciba días, horas, minutos y segundos (como enteros)
 y retorne su resultado en milisegundos.`;

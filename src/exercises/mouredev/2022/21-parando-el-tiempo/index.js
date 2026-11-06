@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '21';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['asincronía','funciones'];
 
 export const enunciado = `Crea una función que sume 2 números y retorne su resultado pasados
 unos segundos.

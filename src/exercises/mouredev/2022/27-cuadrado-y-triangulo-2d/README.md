@@ -1,4 +1,4 @@
-# 27 · Cuadrado y triángulo 2d
+# 27 · Cuadrado y triángulo 2D
 
 ![Dificultad](https://img.shields.io/badge/dificultad-facil-brightgreen)
 ![Origen](https://img.shields.io/badge/origen-mouredev%202022-blue)
@@ -19,9 +19,7 @@ Fuente: [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/)
 
 ## 🔀 Diagrama de flujo
 
-![Diagrama de flujo](./diagrama.png)
-
-> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._
 
 ## 🧠 Explicación del algoritmo
 

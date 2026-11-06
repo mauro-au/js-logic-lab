@@ -48,7 +48,11 @@ const jsString = (t) => `'${String(t).replaceAll('\\', '\\\\').replaceAll("'", "
 const escaparPlantilla = (t) =>
   String(t).replaceAll('\\', '\\\\').replaceAll('`', '\\`').replaceAll('${', '\\${');
 const shield = (t) => encodeURIComponent(String(t).replaceAll('-', '--').replaceAll('_', '__'));
-const frase = (t) => t.toLowerCase().replace(/\p{L}/u, (c) => c.toUpperCase());
+// Conserva mayúsculas y siglas del título original; solo asegura la inicial.
+const frase = (t) => {
+  const limpio = String(t ?? '').trim();
+  return limpio ? limpio[0].toUpperCase() + limpio.slice(1) : '';
+};
 
 /* ---------- Argumentos ---------- */
 function leerArgs(lista) {
@@ -223,9 +227,7 @@ function plantillaReadme({ numero, titulo, dificultad, tags, origen, anio, enunc
     '',
     '## 🔀 Diagrama de flujo',
     '',
-    '![Diagrama de flujo](./diagrama.png)',
-    '',
-    '> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)',
+    '> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._',
     '',
     '## 🧠 Explicación del algoritmo',
     '',
@@ -289,9 +291,6 @@ async function main() {
   const retos = todos.filter(
     (r) => r.numero >= op.desde && r.numero <= op.hasta && (op.anio === null || r.anio === op.anio)
   );
-
-  const rel = relative(join(DIR_EJERCICIOS, 'x', 'x', 'x'), EJECUTOR).split(sep).join('/');
-  void rel; // el import real se calcula por ejercicio, más abajo
 
   let creados = 0;
   let omitidos = 0;

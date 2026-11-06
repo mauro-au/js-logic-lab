@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '37';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['arreglos','matemáticas'];
 
 export const enunciado = `¡La Tierra Media está en guerra! En ella lucharán razas leales
 a Sauron contra otras bondadosas que no quieren que el mal reine

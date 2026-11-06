@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '96';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['aleatoriedad','matemáticas'];
 
 export const enunciado = `Crea una función que simule las condiciones climáticas (temperatura y probabilidad de lluvia)
 de un lugar ficticio al pasar un número concreto de días según estas reglas:

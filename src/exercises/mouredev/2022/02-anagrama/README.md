@@ -17,9 +17,7 @@ Escribe una función que reciba dos palabras (String) y retorne verdadero o fals
 
 ## 🔀 Diagrama de flujo
 
-![Diagrama de flujo](./diagrama.png)
-
-> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+> _Pendiente: agregar `diagrama.png` o `diagrama.drawio`._
 
 ## 🧠 Explicación del algoritmo
 

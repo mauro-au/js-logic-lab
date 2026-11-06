@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '92';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['matemáticas','arreglos'];
 
 export const enunciado = `Crea una función que encuentre todos los triples pitagóricos
 (ternas) menores o iguales a un número dado.

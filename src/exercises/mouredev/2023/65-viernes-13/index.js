@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '65';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['fechas'];
 
 export const enunciado = `Crea una función que sea capaz de detectar si existe un viernes 13
 en el mes y el año indicados.

@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '58';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['entrada-salida'];
 
 export const enunciado = `Escribe un !Hola Mundo! en todos los lenguajes de programación que puedas.
 Seguro que hay algún lenguaje que te llama la atención y nunca has utilizado,

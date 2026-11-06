@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '43';
 export const dificultad = 'Fácil'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['matemáticas','strings'];
 
 export const enunciado = `Crea una función que transforme grados Celsius en Fahrenheit
 y viceversa.

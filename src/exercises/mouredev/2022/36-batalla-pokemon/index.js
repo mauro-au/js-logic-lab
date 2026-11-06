@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '36';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['matemáticas','condicionales'];
 
 export const enunciado = `Crea un programa que calcule el daño de un ataque durante
 una batalla Pokémon.

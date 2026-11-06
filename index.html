@@ -4,11 +4,34 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JS Logic Lab</title>
-    <meta property="og:image" content="https://bolt.new/static/og_default.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://bolt.new/static/og_default.png">
+    <meta
+      name="description"
+      content="Laboratorio interactivo para practicar lógica de programación en JavaScript: 101 retos, tests automáticos y terminal simulada."
+    />
+    <meta name="theme-color" content="#0b111e" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" type="image/svg+xml" href="%BASE_URL%favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="JS Logic Lab" />
+    <meta
+      property="og:description"
+      content="101 retos de lógica en JavaScript con tests automáticos, benchmark de soluciones y terminal simulada."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="JS Logic Lab" />
+    <meta
+      name="twitter:description"
+      content="101 retos de lógica en JavaScript con tests automáticos, benchmark de soluciones y terminal simulada."
+    />
   </head>
   <body>
+    <noscript>
+      <p style="margin: 0 0 24px; padding: 16px 20px; border: 1px solid #1e293b; border-radius: 8px; background: #111827; color: #f3f4f6;">
+        JS Logic Lab necesita JavaScript para ejecutar los ejercicios. Actívalo y recarga la página.
+      </p>
+    </noscript>
+
     <div id="app">
       <!-- Encabezado Superior -->
       <header class="main-header">
@@ -24,24 +47,30 @@
           </div>
           <h1 class="gradient-title">JS Logic Lab <span class="version">V1.3</span></h1>
         </div>
-        <div class="notifications" id="contador-progreso">
+        <div class="notifications" id="contador-progreso" aria-live="polite">
           <span class="dot-green">●</span> Cargando progreso...
         </div>
       </header>
       
       <!-- Panel de Control Reestructurado -->
-      <div class="control-panel">
+      <div class="control-panel" role="search" aria-label="Buscar y filtrar ejercicios">
         <div class="control-labels">
-          <label>BUSCAR ALGORITMO</label>
-          <label>FILTRAR POR ORIGEN</label>
-          <label>DIFICULTAD GLOBAL</label>
-          <label>SELECCIONAR RETO DISPONIBLE</label>
+          <label for="buscador-ejercicios">BUSCAR ALGORITMO</label>
+          <label for="selector-categoria">FILTRAR POR ORIGEN</label>
+          <label for="selector-dificultad">DIFICULTAD GLOBAL</label>
+          <label for="selector-ejercicios">SELECCIONAR RETO DISPONIBLE</label>
         </div>
         
         <div class="actions-group">
           <!-- 🔍 Input de Búsqueda al inicio con Icono integrado por CSS -->
           <div class="search-wrapper">
-            <input type="text" id="buscador-ejercicios" placeholder="Buscar algoritmo (fizz, loops...)" autocomplete="off" />
+            <input
+              type="search"
+              id="buscador-ejercicios"
+              placeholder="Buscar algoritmo (fizz, loops...)"
+              autocomplete="off"
+              spellcheck="false"
+            />
           </div>
 
           <!-- Selector de Categorías / Orígenes -->
@@ -65,11 +94,11 @@
       </div>
 
       <!-- Contenedor Dinámico Principal -->
-      <div id="resultado">
+      <main id="resultado">
         <div class="placeholder-box">
           <p>Selecciona un ejercicio del panel superior para inicializar el entorno de pruebas.</p>
         </div>
-      </div>
+      </main>
 
       <!-- Barra de Estado Inferior -->
       <footer class="status-bar">

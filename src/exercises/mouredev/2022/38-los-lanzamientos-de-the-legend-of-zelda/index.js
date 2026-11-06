@@ -3,7 +3,7 @@ import { crearEjecutor } from '../../../../lib/ejecutor.js';
 
 export const numero = '38';
 export const dificultad = 'Medio'; // Fácil | Medio | Difícil
-export const tags = [];
+export const tags = ['fechas','matemáticas'];
 
 export const enunciado = `¡Han anunciado un nuevo "The Legend of Zelda"!
 Se llamará "Tears of the Kingdom" y se lanzará el 12 de mayo de 2023.

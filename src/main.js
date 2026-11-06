@@ -51,7 +51,7 @@ const normalizar = (texto) =>
 const DIFICULTADES = { FACIL: 'FÁCIL', MEDIO: 'MEDIO', DIFICIL: 'DIFÍCIL' };
 
 const formatearTags = (tags) => {
-  if (Array.isArray(tags)) return tags.join(', ');
+  if (Array.isArray(tags)) return tags.length ? tags.join(', ') : 'General';
   return tags ? String(tags) : 'General';
 };
 
@@ -86,11 +86,21 @@ function formatearArgumento(arg) {
 }
 
 /* ============================================================
+   VERSIÓN (única fuente de verdad: package.json vía Vite)
+   ============================================================ */
+function actualizarVersion() {
+  const etiqueta = document.querySelector('.main-header .version');
+  if (!etiqueta || typeof __APP_VERSION__ === 'undefined') return;
+  etiqueta.textContent = `V${String(__APP_VERSION__).replace(/\.0$/, '')}`;
+}
+
+/* ============================================================
    ALMACENAMIENTO SEGURO
    ============================================================ */
-const CLAVE_COMPLETADOS = 'retosCompletados';
-const CLAVE_ACTIVO = 'ejercicioActivo';
-const CLAVE_OPCIONES = 'opcionesEjercicios';
+const PREFIJO_CLAVE = 'jsLogicLab:';
+const CLAVE_COMPLETADOS = `${PREFIJO_CLAVE}retosCompletados`;
+const CLAVE_ACTIVO = `${PREFIJO_CLAVE}ejercicioActivo`;
+const CLAVE_OPCIONES = `${PREFIJO_CLAVE}opcionesEjercicios`;
 
 const leerTexto = (clave) => {
   try { return localStorage.getItem(clave); } catch { return null; }
@@ -101,6 +111,25 @@ const guardarTexto = (clave, valor) => {
 const borrarClave = (clave) => {
   try { localStorage.removeItem(clave); } catch { /* sin almacenamiento */ }
 };
+
+// Migra los datos de las primeras versiones a las claves con prefijo.
+const CLAVES_ANTIGUAS = [
+  [CLAVE_COMPLETADOS, 'retosCompletados'],
+  [CLAVE_ACTIVO, 'ejercicioActivo'],
+  [CLAVE_OPCIONES, 'opcionesEjercicios'],
+];
+
+function migrarClaves() {
+  for (const [nueva, antigua] of CLAVES_ANTIGUAS) {
+    if (leerTexto(nueva) !== null) continue;
+    const valor = leerTexto(antigua);
+    if (valor === null) continue;
+    guardarTexto(nueva, valor);
+    borrarClave(antigua);
+  }
+}
+
+migrarClaves();
 
 const migrarRuta = (ruta) =>
   typeof ruta === 'string' && ruta.endsWith('.js') && !ruta.endsWith('/index.js')
@@ -203,7 +232,9 @@ function construirCatalogo() {
         dificultadClave: normalizar(dificultad),
         nombreFormateado: nombreLegible.toUpperCase(),
         numeroCarpeta: nombreReto.match(/^\d+/)?.[0] ?? '--',
-        textoBusqueda: normalizar(`${nombreLegible} ${formatearTags(modulo?.tags)}`),
+        textoBusqueda: normalizar(
+          `${nombreLegible} ${modulo?.numero ?? ''} ${categoria} ${dificultad} ${formatearTags(modulo?.tags)} ${modulo?.enunciado ?? ''}`
+        ),
       };
     })
     .sort((a, b) => a.rutaReal.localeCompare(b.rutaReal, 'es', { numeric: true }));
@@ -225,7 +256,7 @@ function restaurarVistaVacia() {
 function mostrarErrorGlobal(titulo, mensaje) {
   contenedorResultado.innerHTML = `
     <div class="error-box">
-      <h5>${escapar(titulo)}</h5>
+      <h3>${escapar(titulo)}</h3>
       <code>${escapar(mensaje)}</code>
     </div>`;
 }
@@ -309,14 +340,68 @@ function renderLineaTerminal({ nivel, origen, meta, texto }) {
   }
 }
 
+function resumirEjecucion(registro, error) {
+  if (error) {
+    return {
+      estado: 'Error',
+      claseEstado: 'status-error',
+      detalle: 'Ejecución interrumpida',
+      claseDetalle: 'error',
+    };
+  }
+
+  const soluciones = registro.filter((linea) => linea.meta?.tipo === 'solucion');
+  const casos = registro.filter(
+    (linea) => linea.meta?.tipo === 'caso' && linea.meta.estado !== 'demo'
+  );
+  const aciertos = casos.filter(
+    (linea) => linea.meta.estado === 'ok' || linea.meta.estado === 'libre'
+  ).length;
+  const fallos = casos.filter(
+    (linea) => linea.meta.estado === 'fallo' || linea.meta.estado === 'error'
+  ).length;
+  const pendientes = casos.filter((linea) => linea.meta.estado === 'pendiente').length;
+
+  let estado;
+  let claseEstado;
+  if (!soluciones.length) {
+    estado = 'Sin soluciones';
+    claseEstado = 'status-error';
+  } else if (fallos > 0) {
+    estado = 'Con fallos';
+    claseEstado = 'status-error';
+  } else if (pendientes > 0) {
+    estado = 'Pendiente';
+    claseEstado = 'status-pendiente';
+  } else {
+    estado = 'Completed';
+    claseEstado = 'status-ok';
+  }
+
+  const detalle = casos.length
+    ? `${aciertos}/${casos.length} casos · ${soluciones.length} ${
+        soluciones.length === 1 ? 'solución' : 'soluciones'
+      }`
+    : `${soluciones.length} ${soluciones.length === 1 ? 'solución' : 'soluciones'} · sin casos`;
+
+  return {
+    estado,
+    claseEstado,
+    detalle,
+    claseDetalle:
+      !soluciones.length || fallos > 0 ? 'error' : pendientes > 0 ? 'warn' : 'ok',
+  };
+}
+
 function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo }) {
   const resuelto = completados.has(ejercicio.rutaReal);
   const numero = modulo.numero ?? ejercicio.numeroCarpeta;
+  const resumen = resumirEjecucion(registro, error);
 
-const lineasConsola = registro.map(renderLineaTerminal).join('');
+  const lineasConsola = registro.map(renderLineaTerminal).join('');
 
   const cuerpoSalida = error
-    ? `<div class="error-box"><h5>EXECUTION ERROR</h5><code>${escapar(error?.message ?? error)}</code></div>`
+    ? `<div class="error-box"><h3>EXECUTION ERROR</h3><code>${escapar(error?.message ?? error)}</code></div>`
     : salidaHTML;
 
   return `
@@ -324,9 +409,9 @@ const lineasConsola = registro.map(renderLineaTerminal).join('');
       <div class="panel-izquierdo">
         <div class="card-bloque">
           <div class="card-header-internal">
-            <h5 class="title-consigna">● CONSIGNA / ENUNCIADO</h5>
+            <h2 class="title-consigna">● CONSIGNA / ENUNCIADO</h2>
             <div class="header-actions-right">
-              <button data-accion="completar" class="btn-solved-header ${resuelto ? 'active' : ''}">
+              <button type="button" data-accion="completar" class="btn-solved-header ${resuelto ? 'active' : ''}">
                 ${resuelto ? '✓ Completado' : 'Marcar Resuelto'}
               </button>
               <span class="badge-exercise">Ejercicio ${escapar(numero)}</span>
@@ -341,13 +426,13 @@ const lineasConsola = registro.map(renderLineaTerminal).join('');
 
         <div class="card-bloque">
           <div class="card-header-internal">
-            <h5 class="title-html">● VISTA EN PANTALLA (HTML)</h5>
-            <span class="badge-dom">DOM Output</span>
+            <h2 class="title-html">● RESULTADOS DE EJECUCIÓN</h2>
+            <span class="badge-dom">Test Output</span>
           </div>
           <div class="output-content">${cuerpoSalida}</div>
           <div class="card-footer-status">
-            <span class="status-lbl ${error ? 'status-error' : ''}">Status: ${error ? 'Error' : 'Completed'}</span>
-            <span class="sync-lbl">✓ Sync with console</span>
+            <span class="status-lbl ${resumen.claseEstado}">Status: ${escapar(resumen.estado)}</span>
+            <span class="sync-lbl ${resumen.claseDetalle}">${escapar(resumen.detalle)}</span>
           </div>
         </div>
       </div>
@@ -357,11 +442,17 @@ const lineasConsola = registro.map(renderLineaTerminal).join('');
           <div class="terminal-header">
             <span class="terminal-title">● TERMINAL</span>
             <div class="terminal-actions-group">
-              <button data-accion="ejecutar" class="btn-terminal-run">⚡ Ejecutar código</button>
+              <button type="button" data-accion="ejecutar" class="btn-terminal-run">⚡ Ejecutar código</button>
               <span class="timer-tag">${tiempo}MS</span>
             </div>
           </div>
-          <div class="fake-console">
+          <div
+            class="fake-console"
+            role="log"
+            aria-live="polite"
+            aria-atomic="false"
+            aria-label="Registro de ejecución"
+          >
             ${lineasConsola || '<div class="t-info">No se registraron logs.</div>'}
             <div class="t-cursor"><span class="prompt">›</span><span class="cursor-terminal"> </span></div>
           </div>
@@ -400,12 +491,12 @@ async function ejecutarEjercicio(ruta) {
   const t0 = performance.now();
 
   try {
-  salida = await modulo.ejecutar({
-    solo: opcionesEjercicio.solo,
-    colapsadas: opcionesEjercicio.colapsadas,
-    codigoAbierto: opcionesEjercicio.codigoAbierto,
-    codigo: codigosFuente[ruta.replace(/index\.js$/, 'soluciones.js')],
-  });
+    salida = await modulo.ejecutar({
+      solo: opcionesEjercicio.solo,
+      colapsadas: opcionesEjercicio.colapsadas,
+      codigoAbierto: opcionesEjercicio.codigoAbierto,
+      codigo: codigosFuente[ruta.replace(/index\.js$/, 'soluciones.js')],
+    });
   } catch (e) {
     error = e;
   } finally {
@@ -420,9 +511,17 @@ async function ejecutarEjercicio(ruta) {
       ? 'El ejercicio no retornó ningún texto específico.'
       : String(salida);
 
-  // Si se vuelve a ejecutar el mismo ejercicio, conserva el scroll
+  // Si se vuelve a ejecutar el mismo ejercicio, conserva el scroll y el foco.
   const mismoEjercicio = ruta === rutaRenderizada;
   const scrollY = window.scrollY;
+  const elementoActivo = document.activeElement;
+  const focoPrevio =
+    elementoActivo instanceof HTMLElement && elementoActivo.dataset.accion
+      ? {
+          accion: elementoActivo.dataset.accion,
+          solucion: elementoActivo.dataset.solucion ?? null,
+        }
+      : null;
 
   contenedorResultado.innerHTML = construirVista({
     ejercicio,
@@ -435,6 +534,15 @@ async function ejecutarEjercicio(ruta) {
 
   rutaRenderizada = ruta;
   if (mismoEjercicio) window.scrollTo(0, scrollY);
+
+  if (focoPrevio) {
+    const destino = [...contenedorResultado.querySelectorAll('[data-accion]')].find(
+      (elemento) =>
+        elemento.dataset.accion === focoPrevio.accion &&
+        (elemento.dataset.solucion ?? null) === focoPrevio.solucion
+    );
+    destino?.focus({ preventScroll: true });
+  }
 }
 
 async function copiarCodigo(boton) {
@@ -537,6 +645,7 @@ selectorEjercicios.addEventListener(
    INICIO
    ============================================================ */
 function inicializarLaboratorio() {
+  actualizarVersion();
   catalogo = construirCatalogo();
   catalogoPorRuta = new Map(catalogo.map((e) => [e.rutaReal, e]));
 
