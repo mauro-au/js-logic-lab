@@ -11,6 +11,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "test": "node --test",
+    "test:watch": "node --test --watch",
     "generar-readme": "node scripts/generar-readme.mjs",
     "nuevo": "node scripts/nuevo.mjs",
     "importar": "node scripts/importar-retos.mjs"

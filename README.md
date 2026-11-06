@@ -17,6 +17,20 @@ npm install
 npm run dev
 ```
 
+## 🧪 Pruebas
+
+```bash
+npm test        # ejecutor + validación de los 101 ejercicios
+npm run build   # compilación de producción
+```
+
+El mismo flujo se ejecuta en GitHub Actions (`.github/workflows/ci.yml`).
+
+## 🧭 Cómo funciona
+
+- `src/main.js` obtiene los metadatos del catálogo desde un módulo virtual generado por Vite y descarga cada ejercicio solo al abrirlo.
+- `src/lib/ejecutor.js` compara resultados con igualdad profunda, clona las entradas de cada caso y limita los logs para no saturar la terminal.
+
 ## 🙏 Créditos
 
 Los 101 retos provienen de [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/), el proyecto de [mouredev](https://github.com/mouredev). Este repositorio es un laboratorio independiente para practicarlos.
@@ -27,7 +41,7 @@ Los 101 retos provienen de [retosdeprogramacion.com](https://retosdeprogramacion
 2. Si lo haces a mano, copia el contenido de `src/plantilla/` como `index.js`, `soluciones.js` y `README.md`.
 3. Completa el enunciado, los casos de prueba y las soluciones.
 4. Si quieres, agrega `diagrama.png` o `diagrama.drawio`.
-5. Ejecuta `npm run generar-readme` para actualizar las tablas de abajo.
+5. Ejecuta `npm test` y `npm run generar-readme` para validar el ejercicio y actualizar las tablas de abajo.
 
 ## 📊 Progreso
 

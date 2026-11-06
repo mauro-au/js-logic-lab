@@ -1,9 +1,13 @@
 import { extraerSoluciones, resaltar } from './codigo.js';
 
 const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳', libre: '▶' };
-const NIVELES = ['log', 'info', 'warn', 'error'];
+const NIVELES = ['log', 'info', 'debug', 'warn', 'error'];
 const PREFIJO_SOLO = 'solo_';
-const MAX_LOG_USUARIO = 400;
+const MAX_LOG_TEXTO = 400;
+const MAX_LOGS_CAPTURA = 500;
+const MAX_LOGS_MOSTRADOS = 500;
+
+const esObjeto = (valor) => valor !== null && typeof valor === 'object';
 
 const escapar = (valor) =>
   String(valor ?? '')
@@ -20,6 +24,125 @@ function mostrar(v) {
     try { return JSON.stringify(v); } catch { return String(v); }
   }
   return String(v);
+}
+
+/* ---------- Copia profunda de entradas ---------- */
+
+export function clonar(valor, vistos = new Map()) {
+  if (!esObjeto(valor)) return valor;
+  if (vistos.has(valor)) return vistos.get(valor);
+
+  if (valor instanceof Date) return new Date(valor.getTime());
+  if (valor instanceof RegExp) return new RegExp(valor.source, valor.flags);
+
+  if (valor instanceof Map) {
+    const copia = new Map();
+    vistos.set(valor, copia);
+    for (const [clave, item] of valor) {
+      copia.set(clonar(clave, vistos), clonar(item, vistos));
+    }
+    return copia;
+  }
+
+  if (valor instanceof Set) {
+    const copia = new Set();
+    vistos.set(valor, copia);
+    for (const item of valor) copia.add(clonar(item, vistos));
+    return copia;
+  }
+
+  if (valor instanceof ArrayBuffer) return valor.slice(0);
+  if (ArrayBuffer.isView(valor)) {
+    if (valor instanceof DataView) {
+      return new DataView(valor.buffer.slice(0), valor.byteOffset, valor.byteLength);
+    }
+    return valor.slice();
+  }
+
+  const copia = Array.isArray(valor) ? [] : Object.create(Object.getPrototypeOf(valor));
+  vistos.set(valor, copia);
+
+  for (const clave of Reflect.ownKeys(valor)) {
+    const descriptor = Object.getOwnPropertyDescriptor(valor, clave);
+    if (!descriptor?.enumerable) continue;
+    copia[clave] = clonar(valor[clave], vistos);
+  }
+
+  return copia;
+}
+
+/* ---------- Igualdad profunda ---------- */
+
+const clavesEnumerables = (objeto) =>
+  Reflect.ownKeys(objeto).filter(
+    (clave) => Object.getOwnPropertyDescriptor(objeto, clave)?.enumerable
+  );
+
+export function sonIguales(a, b, vistos = new Map()) {
+  if (a === b) return true;
+  if (typeof a === 'number' && typeof b === 'number') {
+    if (Number.isNaN(a) && Number.isNaN(b)) return true;
+  }
+  if (!esObjeto(a) || !esObjeto(b)) return false;
+  if (Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) return false;
+
+  if (a instanceof Date) return a.getTime() === b.getTime();
+  if (a instanceof RegExp) return a.source === b.source && a.flags === b.flags;
+
+  // Referencias circulares: ya estamos comparando este mismo par en la ruta actual.
+  if (vistos.get(a) === b) return true;
+  vistos.set(a, b);
+
+  try {
+    if (a instanceof Map) {
+      if (a.size !== b.size) return false;
+      for (const [clave, valor] of a) {
+        if (!b.has(clave) || !sonIguales(valor, b.get(clave), vistos)) return false;
+      }
+      return true;
+    }
+
+    if (a instanceof Set) {
+      if (a.size !== b.size) return false;
+      for (const valor of a) {
+        let encontrado = false;
+        for (const otro of b) {
+          if (sonIguales(valor, otro, vistos)) {
+            encontrado = true;
+            break;
+          }
+        }
+        if (!encontrado) return false;
+      }
+      return true;
+    }
+
+    if (a instanceof ArrayBuffer || ArrayBuffer.isView(a)) {
+      const bytesA =
+        a instanceof ArrayBuffer
+          ? new Uint8Array(a)
+          : new Uint8Array(a.buffer, a.byteOffset, a.byteLength);
+      const bytesB =
+        b instanceof ArrayBuffer
+          ? new Uint8Array(b)
+          : new Uint8Array(b.buffer, b.byteOffset, b.byteLength);
+      if (bytesA.length !== bytesB.length) return false;
+      return bytesA.every((byte, i) => byte === bytesB[i]);
+    }
+
+    const clavesA = clavesEnumerables(a);
+    const clavesB = clavesEnumerables(b);
+    if (clavesA.length !== clavesB.length) return false;
+
+    for (const clave of clavesA) {
+      if (!Object.prototype.propertyIsEnumerable.call(b, clave)) return false;
+      if (!sonIguales(a[clave], b[clave], vistos)) return false;
+    }
+
+    return true;
+  } finally {
+    vistos.delete(a);
+  }
 }
 
 function resumir(v, max = 60) {
@@ -64,11 +187,20 @@ const sistema = (nivel, texto, meta) => emitir('sistema', nivel, texto, meta);
 
 function conCaptura(accion) {
   const logs = [];
+  logs.omitidos = 0;
+
   const originales = {};
   for (const nivel of NIVELES) {
     originales[nivel] = console[nivel];
-    console[nivel] = (...args) => logs.push({ nivel, args });
+    console[nivel] = (...args) => {
+      if (logs.length >= MAX_LOGS_CAPTURA) {
+        logs.omitidos++;
+        return;
+      }
+      logs.push({ nivel, args });
+    };
   }
+
   let valor;
   let error = null;
   try {
@@ -78,22 +210,32 @@ function conCaptura(accion) {
   } finally {
     for (const nivel of NIVELES) console[nivel] = originales[nivel];
   }
+
   return { valor, error, logs };
 }
 
 const textoLog = (args) => {
   const t = args.map((a) => (typeof a === 'string' ? a : mostrar(a))).join(' ');
-  return t.length > MAX_LOG_USUARIO ? `${t.slice(0, MAX_LOG_USUARIO)}… (+${t.length - MAX_LOG_USUARIO} car.)` : t;
+  return t.length > MAX_LOG_TEXTO ? `${t.slice(0, MAX_LOG_TEXTO)}… (+${t.length - MAX_LOG_TEXTO} car.)` : t;
 };
 
-function imprimirLogsUsuario(logs) {
-  logs.forEach(({ nivel, args }) => emitir('usuario', nivel, textoLog(args), { tipo: 'log' }));
+function imprimirLogsUsuario(logs, estado) {
+  for (const { nivel, args } of logs) {
+    if (estado.mostrados >= MAX_LOGS_MOSTRADOS) {
+      estado.omitidos++;
+      continue;
+    }
+    emitir('usuario', nivel, textoLog(args), { tipo: 'log' });
+    estado.mostrados++;
+  }
+  estado.omitidos += logs.omitidos ?? 0;
 }
 
 /* ---------- Evaluación (una vez, con logs) ---------- */
 
 function evaluar(fn, caso) {
-  const { valor, error, logs } = conCaptura(() => fn(...caso.entrada));
+  const entrada = caso.entrada.map((valor) => clonar(valor));
+  const { valor, error, logs } = conCaptura(() => fn(...entrada));
 
   if (error) {
     return { estado: 'error', texto: `Error: ${error?.message ?? error}`, valor: undefined, logs };
@@ -115,7 +257,7 @@ function evaluar(fn, caso) {
   if (valor === undefined || valor === null) {
     return { estado: 'pendiente', texto: '—', valor: undefined, logs };
   }
-  const ok = mostrar(valor) === mostrar(caso.esperado);
+  const ok = sonIguales(valor, caso.esperado);
   return { estado: ok ? 'ok' : 'fallo', texto: mostrar(valor), valor, logs };
 }
 
@@ -128,7 +270,9 @@ function medir(fn, casos) {
 
   conCaptura(() => {
     const correr = () => {
-      for (const c of casos) sumidero = fn(...c.entrada);
+      for (const c of casos) {
+        sumidero = fn(...c.entrada.map((valor) => clonar(valor)));
+      }
     };
 
     const t = performance.now();
@@ -163,13 +307,25 @@ function medir(fn, casos) {
  * @param {Array}    [config.casos]     [{ entrada: [args], esperado }]. Vacío = modo libre
  * @param {Function} [config.demo]      (solucion) => resultado a mostrar (opcional)
  */
-export function crearEjecutor({ soluciones, casos: casosIniciales, demo }) {
-  const libre = !Array.isArray(casosIniciales) || casosIniciales.length === 0;
-  const casos = libre ? [{ entrada: [], libre: true }] : casosIniciales;
+export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) {
+  const listaCasos = Array.isArray(casosIniciales) ? casosIniciales : [];
+  const casosValidos = listaCasos.filter(
+    (caso) => esObjeto(caso) && Array.isArray(caso.entrada)
+  );
+  const descartados = listaCasos.length - casosValidos.length;
+  const libre = casosValidos.length === 0;
+  const casos = libre ? [{ entrada: [], libre: true }] : casosValidos;
 
   return function ejecutar(opciones = {}) {
     const { solo = null, colapsadas = [], codigoAbierto = [], codigo = '' } = opciones ?? {};
     const funcionesFuente = extraerSoluciones(codigo);
+    const estadoLogs = { mostrados: 0, omitidos: 0 };
+
+    if (descartados > 0) {
+      sistema('warn', `${descartados} caso(s) inválido(s) ignorado(s): falta "entrada" como array`, {
+        tipo: 'info',
+      });
+    }
 
     const todas = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
 
@@ -266,7 +422,7 @@ export function crearEjecutor({ soluciones, casos: casosIniciales, demo }) {
           });
         }
 
-        imprimirLogsUsuario(logs);
+        imprimirLogsUsuario(logs, estadoLogs);
       });
 
       /* ---------- DEMO ---------- */
@@ -288,7 +444,7 @@ export function crearEjecutor({ soluciones, casos: casosIniciales, demo }) {
               <pre>${escapar(mostrar(r.valor))}</pre>
             </details>`;
         }
-        imprimirLogsUsuario(r.logs);
+        imprimirLogsUsuario(r.logs, estadoLogs);
       }
 
       /* ---------- TABLA HTML ---------- */
@@ -362,6 +518,14 @@ export function crearEjecutor({ soluciones, casos: casosIniciales, demo }) {
         : filtro === 'manual'
           ? `<div class="sol-filtro">Mostrando solo <code>${escapar(solo)}</code> · ${todas.length - 1} ocultas</div>`
           : '';
+
+    if (estadoLogs.omitidos > 0) {
+      sistema(
+        'warn',
+        `… ${estadoLogs.omitidos} log(s) omitido(s) para no saturar la terminal`,
+        { tipo: 'info' }
+      );
+    }
 
     return barra + bloques.join('');
   };

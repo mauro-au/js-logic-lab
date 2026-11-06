@@ -1,4 +1,5 @@
 import './style.css';
+import catalogoMetadatos from 'virtual:catalogo-ejercicios';
 
 /* ============================================================
    REFERENCIAS DOM
@@ -14,15 +15,34 @@ const totalEjerciciosEl = document.getElementById('total-ejercicios');
 /* ============================================================
    MÓDULOS
    Estructura: ./exercises/<origen>/<año>/NN-nombre/index.js
+   Los ejercicios y su código se cargan solo al abrirlos.
    ============================================================ */
-const modulosEjercicios = import.meta.glob('./exercises/**/index.js', { eager: true });
-
-// Texto fuente de cada soluciones.js (para "Ver código")
-const codigosFuente = import.meta.glob('./exercises/**/soluciones.js', {
-  eager: true,
+const cargadoresEjercicios = import.meta.glob('./exercises/**/index.js');
+const cargadoresCodigo = import.meta.glob('./exercises/**/soluciones.js', {
   query: '?raw',
   import: 'default',
 });
+
+const cacheEjercicios = new Map();
+const cacheCodigo = new Map();
+
+function cargarEjercicio(ruta) {
+  if (!cargadoresEjercicios[ruta]) return Promise.resolve(null);
+  if (!cacheEjercicios.has(ruta)) {
+    cacheEjercicios.set(ruta, cargadoresEjercicios[ruta]());
+  }
+  return cacheEjercicios.get(ruta);
+}
+
+function cargarCodigo(ruta) {
+  const rutaCodigo = ruta.replace(/index\.js$/, 'soluciones.js');
+  const cargador = cargadoresCodigo[rutaCodigo];
+  if (!cargador) return Promise.resolve('');
+  if (!cacheCodigo.has(rutaCodigo)) {
+    cacheCodigo.set(rutaCodigo, cargador());
+  }
+  return cacheCodigo.get(rutaCodigo);
+}
 
 /* ============================================================
    LISTENERS CON LIMPIEZA (necesario para la recarga en caliente)
@@ -188,19 +208,24 @@ let ultimaEjecucion = 0;
 const consolaOriginal = {
   log: console.log,
   info: console.info,
+  debug: console.debug,
   warn: console.warn,
   error: console.error,
 };
 
+const MAX_ENTRADAS_TERMINAL = 1000;
+
 function capturarConsola(registro) {
   for (const nivel of Object.keys(consolaOriginal)) {
     console[nivel] = (...args) => {
-      registro.push({
-        nivel,
-        origen: globalThis.__origenLog ?? 'usuario', // sin marca = código del usuario
-        meta: globalThis.__metaLog ?? null,
-        texto: args.map(formatearArgumento).join(' '),
-      });
+      if (registro.length < MAX_ENTRADAS_TERMINAL) {
+        registro.push({
+          nivel,
+          origen: globalThis.__origenLog ?? 'usuario', // sin marca = código del usuario
+          meta: globalThis.__metaLog ?? null,
+          texto: args.map(formatearArgumento).join(' '),
+        });
+      }
       consolaOriginal[nivel](...args);
     };
   }
@@ -214,15 +239,26 @@ function restaurarConsola() {
    CATÁLOGO
    ============================================================ */
 function construirCatalogo() {
-  return Object.entries(modulosEjercicios)
-    .map(([ruta, modulo]) => {
+  const sinCargador = catalogoMetadatos.filter(
+    ({ ruta }) => typeof cargadoresEjercicios[ruta] !== 'function'
+  );
+  if (sinCargador.length) {
+    console.warn(
+      `[catálogo] ${sinCargador.length} ejercicio(s) sin cargador:`,
+      sinCargador.map(({ ruta }) => ruta).join(', ')
+    );
+  }
+
+  return catalogoMetadatos
+    .filter(({ ruta }) => typeof cargadoresEjercicios[ruta] === 'function')
+    .map(({ ruta, numero, dificultad: dificultadCruda, tags, enunciado }) => {
       const segmentos = ruta
         .replace('./exercises/', '')
         .replace(/\/index\.js$/, '')
         .split('/');
       const nombreReto = segmentos.pop();
       const categoria = segmentos.length ? segmentos.join(' ➔ ') : 'GENERAL';
-      const dificultad = DIFICULTADES[normalizar(modulo?.dificultad)] ?? 'MEDIO';
+      const dificultad = DIFICULTADES[normalizar(dificultadCruda)] ?? 'MEDIO';
       const nombreLegible = nombreReto.replaceAll('-', ' ');
 
       return {
@@ -233,7 +269,7 @@ function construirCatalogo() {
         nombreFormateado: nombreLegible.toUpperCase(),
         numeroCarpeta: nombreReto.match(/^\d+/)?.[0] ?? '--',
         textoBusqueda: normalizar(
-          `${nombreLegible} ${modulo?.numero ?? ''} ${categoria} ${dificultad} ${formatearTags(modulo?.tags)} ${modulo?.enunciado ?? ''}`
+          `${nombreLegible} ${numero ?? ''} ${categoria} ${dificultad} ${formatearTags(tags)} ${enunciado}`
         ),
       };
     })
@@ -468,18 +504,37 @@ async function ejecutarEjercicio(ruta) {
   if (!ruta) return;
 
   const ejercicio = catalogoPorRuta.get(ruta);
-  const modulo = modulosEjercicios[ruta];
 
-  if (!ejercicio || !modulo) {
+  if (!ejercicio) {
     restaurarVistaVacia();
-    return;
-  }
-  if (typeof modulo.ejecutar !== 'function') {
-    mostrarErrorGlobal('EJERCICIO INVÁLIDO', `"${ejercicio.nombreFormateado}" no exporta una función "ejecutar".`);
     return;
   }
 
   const idEjecucion = ++ultimaEjecucion;
+
+  let modulo;
+  let codigo = '';
+  try {
+    [modulo, codigo] = await Promise.all([
+      cargarEjercicio(ruta),
+      cargarCodigo(ruta).catch(() => ''),
+    ]);
+  } catch (e) {
+    if (idEjecucion !== ultimaEjecucion) return;
+    mostrarErrorGlobal(
+      'ERROR AL CARGAR',
+      `No se pudo cargar "${ejercicio.nombreFormateado}": ${e?.message ?? e}`
+    );
+    return;
+  }
+
+  if (idEjecucion !== ultimaEjecucion) return;
+
+  if (!modulo || typeof modulo.ejecutar !== 'function') {
+    mostrarErrorGlobal('EJERCICIO INVÁLIDO', `"${ejercicio.nombreFormateado}" no exporta una función "ejecutar".`);
+    return;
+  }
+
   const registro = [];
   const opcionesEjercicio = opcionesDe(ruta);
   let salida;
@@ -495,7 +550,7 @@ async function ejecutarEjercicio(ruta) {
       solo: opcionesEjercicio.solo,
       colapsadas: opcionesEjercicio.colapsadas,
       codigoAbierto: opcionesEjercicio.codigoAbierto,
-      codigo: codigosFuente[ruta.replace(/index\.js$/, 'soluciones.js')],
+      codigo,
     });
   } catch (e) {
     error = e;
@@ -683,6 +738,8 @@ if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     controlador.abort(); // quita todos los listeners de esta versión
     ultimaEjecucion++;
+    cacheEjercicios.clear();
+    cacheCodigo.clear();
     restaurarConsola();
   });
 }
