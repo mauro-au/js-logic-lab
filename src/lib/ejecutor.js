@@ -1,12 +1,14 @@
 const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳' };
+const NIVELES = ['log', 'info', 'warn', 'error'];
+const PREFIJO_SOLO = 'solo_';
 
 const escapar = (valor) =>
   String(valor ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 
-// Convierte cualquier valor a texto legible (arrays, strings, BigInt, objetos)
 function mostrar(v) {
   if (typeof v === 'bigint') return `${v}n`;
   if (Array.isArray(v)) return `[${v.map(mostrar).join(', ')}]`;
@@ -17,11 +19,6 @@ function mostrar(v) {
   return String(v);
 }
 
-/**
- * Versión corta para la terminal.
- * Arreglos grandes: Array(100) [1, 2, "fizz", 4, … "buzz"]
- * Otros textos largos: se cortan con "…"
- */
 function resumir(v, max = 60) {
   if (Array.isArray(v) && mostrar(v).length > max) {
     const cabeza = [];
@@ -42,17 +39,101 @@ function resumir(v, max = 60) {
 const entradaTexto = (entrada) => entrada.map(mostrar).join(', ');
 const entradaCorta = (entrada) => entrada.map((a) => resumir(a, 30)).join(', ');
 
-function evaluar(fn, caso) {
+const formatearTiempo = (ms) =>
+  ms == null ? '—' : ms < 1 ? `${(ms * 1000).toFixed(1)} µs` : `${ms.toFixed(2)} ms`;
+
+/* ---------- Separación de logs: sistema vs usuario ---------- */
+
+function emitir(origen, nivel, texto) {
+  const anterior = globalThis.__origenLog;
+  globalThis.__origenLog = origen;
   try {
-    const obtenido = fn(...caso.entrada);
-    if (obtenido === undefined || obtenido === null) {
-      return { estado: 'pendiente', texto: '—', valor: undefined };
-    }
-    const ok = mostrar(obtenido) === mostrar(caso.esperado);
-    return { estado: ok ? 'ok' : 'fallo', texto: mostrar(obtenido), valor: obtenido };
-  } catch (e) {
-    return { estado: 'error', texto: `Error: ${e?.message ?? e}`, valor: undefined };
+    console[nivel](texto);
+  } finally {
+    globalThis.__origenLog = anterior;
   }
+}
+const sistema = (nivel, texto) => emitir('sistema', nivel, texto);
+
+// Ejecuta una acción guardando (sin imprimir) los console.* que haga tu código
+function conCaptura(accion) {
+  const logs = [];
+  const originales = {};
+  for (const nivel of NIVELES) {
+    originales[nivel] = console[nivel];
+    console[nivel] = (...args) => logs.push({ nivel, args });
+  }
+  let valor;
+  let error = null;
+  try {
+    valor = accion();
+  } catch (e) {
+    error = e;
+  } finally {
+    for (const nivel of NIVELES) console[nivel] = originales[nivel];
+  }
+  return { valor, error, logs };
+}
+
+const textoLog = (args) =>
+  args.map((a) => (typeof a === 'string' ? a : mostrar(a))).join(' ');
+
+function imprimirLogsUsuario(logs) {
+  logs.forEach(({ nivel, args }) => emitir('usuario', nivel, textoLog(args)));
+}
+
+/* ---------- Evaluación (una vez, con logs) ---------- */
+
+function evaluar(fn, caso) {
+  const { valor, error, logs } = conCaptura(() => fn(...caso.entrada));
+
+  if (error) {
+    return { estado: 'error', texto: `Error: ${error?.message ?? error}`, valor: undefined, logs };
+  }
+  if (valor === undefined || valor === null) {
+    return { estado: 'pendiente', texto: '—', valor: undefined, logs };
+  }
+  const ok = mostrar(valor) === mostrar(caso.esperado);
+  return { estado: ok ? 'ok' : 'fallo', texto: mostrar(valor), valor, logs };
+}
+
+/* ---------- Benchmark: promedio de muchas repeticiones ---------- */
+
+let sumidero; // evita que el motor descarte llamadas "inútiles"
+
+// Retorna el tiempo promedio (ms) de ejecutar TODOS los casos una vez
+function medir(fn, casos) {
+  let promedio = null;
+
+  conCaptura(() => {
+    const correr = () => {
+      for (const c of casos) sumidero = fn(...c.entrada);
+    };
+
+    const t = performance.now();
+    correr();
+    const primera = performance.now() - t;
+
+    // Solución lenta: una sola medición basta
+    if (primera > 20) {
+      promedio = primera;
+      return;
+    }
+
+    for (let i = 0; i < 10; i++) correr(); // calentamiento
+
+    let n = 0;
+    const inicio = performance.now();
+    let ahora = inicio;
+    while (ahora - inicio < 40 && n < 5000) {
+      for (let k = 0; k < 20; k++) correr();
+      n += 20;
+      ahora = performance.now();
+    }
+    promedio = (ahora - inicio) / n;
+  });
+
+  return promedio;
 }
 
 /**
@@ -63,85 +144,144 @@ function evaluar(fn, caso) {
  * @param {Function} [config.demo]      (solucion) => resultado a mostrar (opcional)
  */
 export function crearEjecutor({ soluciones, casos, demo }) {
-  return function ejecutar() {
-    const lista = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
+  return function ejecutar(opciones = {}) {
+    const { solo = null, colapsadas = [] } = opciones ?? {};
 
-    if (!lista.length) {
-      console.warn('No hay soluciones. Exporta una función en soluciones.js');
+    const todas = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
+
+    if (!todas.length) {
+      sistema('warn', 'No hay soluciones. Exporta una función en soluciones.js');
       return '<p class="sol-vacio">⚠️ No hay soluciones. Exporta una función en <code>soluciones.js</code>.</p>';
     }
 
-    return lista
-      .map(([nombre, fn], indice) => {
-        const t0 = performance.now();
-        const resultados = casos.map((caso) => ({ caso, ...evaluar(fn, caso) }));
-        const ms = (performance.now() - t0).toFixed(2);
-        const pasados = resultados.filter((r) => r.estado === 'ok').length;
-        const pendientes = resultados.some((r) => r.estado === 'pendiente');
+    /* ---------- Filtro: prefijo "solo_" o selección manual ---------- */
+    const conPrefijo = todas.filter(([n]) => n.startsWith(PREFIJO_SOLO));
+    let lista = todas;
+    let filtro = null;
+    if (conPrefijo.length) {
+      lista = conPrefijo;
+      filtro = 'prefijo';
+    } else if (solo && todas.some(([n]) => n === solo)) {
+      lista = todas.filter(([n]) => n === solo);
+      filtro = 'manual';
+    }
 
-        const claseEstado =
-          pasados === casos.length ? 'ok' : pendientes ? 'pendiente' : 'fallo';
+    /* ---------- 1) Evaluar y medir (sin imprimir nada) ---------- */
+    const datos = lista.map(([nombre, fn]) => {
+      const resultados = casos.map((caso) => ({ caso, ...evaluar(fn, caso) }));
+      const pasados = resultados.filter((r) => r.estado === 'ok').length;
+      const pendientes = resultados.some((r) => r.estado === 'pendiente');
+      const completa = pasados === casos.length;
+      const promedio = completa ? medir(fn, casos) : null;
+      return { nombre, fn, resultados, pasados, pendientes, promedio };
+    });
 
-        /* ---------- TERMINAL: una línea por caso, detalle solo si falla ---------- */
-        if (indice > 0) console.log(''); // separador entre soluciones
-        console.log(`▸ ${nombre}  ${pasados}/${casos.length} · ${ms} ms`);
+    // Solo se compara entre soluciones 100% correctas, y si hay al menos dos
+    const medidos = datos.filter((d) => d.promedio != null);
+    const mejor = medidos.length > 1 ? Math.min(...medidos.map((d) => d.promedio)) : null;
 
-        resultados.forEach(({ caso, estado, valor, texto }) => {
-          const llamada = `${nombre}(${entradaCorta(caso.entrada)})`;
+    /* ---------- 2) Terminal + HTML ---------- */
+    if (filtro === 'prefijo') {
+      sistema('info', `Filtrado por prefijo "${PREFIJO_SOLO}": ${lista.length} de ${todas.length} soluciones`);
+    } else if (filtro === 'manual') {
+      sistema('info', `Mostrando solo "${solo}": ${todas.length - 1} soluciones ocultas`);
+    }
 
-          if (estado === 'ok') {
-            console.log(`  ${ICONOS.ok} ${llamada} → ${resumir(valor)}`);
-          } else if (estado === 'pendiente') {
-            console.log(`  ${ICONOS.pendiente} ${llamada} → pendiente`);
-          } else if (estado === 'error') {
-            console.error(`  ${ICONOS.error} ${llamada} → ${texto}`);
-          } else {
-            console.warn(`  ${ICONOS.fallo} ${llamada}`);
-            console.warn(`      esperado: ${resumir(caso.esperado, 120)}`);
-            console.warn(`      obtenido: ${resumir(valor, 120)}`);
-          }
-        });
+    const bloques = datos.map((d, indice) => {
+      const { nombre, fn, resultados, pasados, pendientes, promedio } = d;
+      const claseEstado = pasados === casos.length ? 'ok' : pendientes ? 'pendiente' : 'fallo';
 
-        /* ---------- DEMO (reto principal) ---------- */
-        let bloqueDemo = '';
-        if (demo && !pendientes) {
-          try {
-            const resultadoDemo = demo(fn);
-            const salida = mostrar(resultadoDemo);
-            console.log(`  ★ Demo → ${resumir(resultadoDemo, 90)}`);
-            bloqueDemo = `
-              <details class="sol-demo">
-                <summary>Ver demo (reto principal)</summary>
-                <pre>${escapar(salida)}</pre>
-              </details>`;
-          } catch (e) {
-            console.error(`  ${ICONOS.error} Demo falló: ${e?.message ?? e}`);
-            bloqueDemo = `<p class="sol-vacio">💥 Demo falló: ${escapar(e?.message ?? e)}</p>`;
-          }
+      const esMejor = mejor != null && promedio === mejor;
+      const razon = mejor != null && promedio != null ? promedio / mejor : 1;
+      const esLenta = mejor != null && !esMejor && razon >= 1.1;
+
+      const etiquetaTerminal = esMejor
+        ? '  🏆 más rápida'
+        : esLenta
+          ? `  (×${razon.toFixed(1)} más lenta)`
+          : '';
+
+      /* ---------- TERMINAL ---------- */
+      if (indice > 0 || filtro) sistema('log', '');
+      sistema('log', `▸ ${nombre}  ${pasados}/${casos.length} · ⏱ ${formatearTiempo(promedio)}${etiquetaTerminal}`);
+
+      resultados.forEach(({ caso, estado, valor, texto, logs }) => {
+        const llamada = `${nombre}(${entradaCorta(caso.entrada)})`;
+
+        if (estado === 'ok') {
+          sistema('log', `  ${ICONOS.ok} ${llamada} → ${resumir(valor)}`);
+        } else if (estado === 'pendiente') {
+          sistema('log', `  ${ICONOS.pendiente} ${llamada} → pendiente`);
+        } else if (estado === 'error') {
+          sistema('error', `  ${ICONOS.error} ${llamada} → ${texto}`);
+        } else {
+          sistema('warn', `  ${ICONOS.fallo} ${llamada}`);
+          sistema('warn', `      esperado: ${resumir(caso.esperado, 120)}`);
+          sistema('warn', `      obtenido: ${resumir(valor, 120)}`);
         }
 
-        /* ---------- TABLA HTML ---------- */
-        const filas = resultados
-          .map(
-            ({ caso, estado, texto }) => `
-            <tr class="fila-${estado}">
-              <td class="col-estado">${ICONOS[estado]}</td>
-              <td><code>${escapar(entradaTexto(caso.entrada))}</code></td>
-              <td><code>${escapar(mostrar(caso.esperado))}</code></td>
-              <td><code>${escapar(texto)}</code></td>
-            </tr>`
-          )
-          .join('');
+        imprimirLogsUsuario(logs);
+      });
 
-        return `
-          <section class="sol-bloque">
-            <header class="sol-header">
-              <h4 class="sol-nombre">${escapar(nombre)}</h4>
-              <div class="sol-meta">
-                <span class="sol-badge ${claseEstado}">${pasados}/${casos.length}</span>
-                <span class="sol-tiempo">${ms} ms</span>
-              </div>
-            </header>
+      /* ---------- DEMO ---------- */
+      let bloqueDemo = '';
+      if (demo && !pendientes) {
+        const r = conCaptura(() => demo(fn));
+        if (r.error) {
+          sistema('error', `  ${ICONOS.error} Demo falló: ${r.error?.message ?? r.error}`);
+          bloqueDemo = `<p class="sol-vacio">💥 Demo falló: ${escapar(r.error?.message ?? r.error)}</p>`;
+        } else {
+          sistema('log', `  ★ Demo → ${resumir(r.valor, 90)}`);
+          bloqueDemo = `
+            <details class="sol-demo">
+              <summary>Ver demo (reto principal)</summary>
+              <pre>${escapar(mostrar(r.valor))}</pre>
+            </details>`;
+        }
+        imprimirLogsUsuario(r.logs);
+      }
+
+      /* ---------- TABLA HTML ---------- */
+      const filas = resultados
+        .map(
+          ({ caso, estado, texto }) => `
+          <tr class="fila-${estado}">
+            <td class="col-estado">${ICONOS[estado]}</td>
+            <td><code>${escapar(entradaTexto(caso.entrada))}</code></td>
+            <td><code>${escapar(mostrar(caso.esperado))}</code></td>
+            <td><code>${escapar(texto)}</code></td>
+          </tr>`
+        )
+        .join('');
+
+      const insignia = esMejor
+        ? '<span class="sol-badge rapida">🏆 más rápida</span>'
+        : esLenta
+          ? `<span class="sol-badge lenta">×${razon.toFixed(1)} más lenta</span>`
+          : '';
+
+      const botonSolo =
+        filtro !== 'prefijo' && todas.length > 1
+          ? `<button type="button" class="btn-solo" data-accion="solo" data-solucion="${escapar(nombre)}">${
+              filtro === 'manual' ? 'Ver todas' : 'Solo esta'
+            }</button>`
+          : '';
+
+      const abierta = !colapsadas.includes(nombre);
+
+      return `
+        <details class="sol-bloque" data-nombre="${escapar(nombre)}" ${abierta ? 'open' : ''}>
+          <summary class="sol-header">
+            <span class="sol-chevron"></span>
+            <h4 class="sol-nombre">${escapar(nombre)}</h4>
+            <div class="sol-meta">
+              ${insignia}
+              <span class="sol-badge ${claseEstado}">${pasados}/${casos.length}</span>
+              <span class="sol-tiempo" title="Promedio de ejecutar todos los casos">⏱ ${formatearTiempo(promedio)}</span>
+              ${botonSolo}
+            </div>
+          </summary>
+          <div class="sol-cuerpo">
             <div class="sol-tabla-wrap">
               <table class="sol-tabla">
                 <thead>
@@ -151,8 +291,17 @@ export function crearEjecutor({ soluciones, casos, demo }) {
               </table>
             </div>
             ${bloqueDemo}
-          </section>`;
-      })
-      .join('');
+          </div>
+        </details>`;
+    });
+
+    const barra =
+      filtro === 'prefijo'
+        ? `<div class="sol-filtro">Filtrado por el prefijo <code>${PREFIJO_SOLO}</code>: ${lista.length} de ${todas.length} soluciones. Quita el prefijo para verlas todas.</div>`
+        : filtro === 'manual'
+          ? `<div class="sol-filtro">Mostrando solo <code>${escapar(solo)}</code> · ${todas.length - 1} ocultas</div>`
+          : '';
+
+    return barra + bloques.join('');
   };
 }

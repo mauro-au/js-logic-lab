@@ -336,3 +336,82 @@ select { color: var(--one-cyan); cursor: pointer; }
 }
 
 .sol-vacio { font-size: 0.85rem; color: var(--one-orange); }
+
+/* Logs escritos por TU código (soluciones.js) */
+.console-line.user-log {
+  margin: 2px 0 2px 28px;
+  padding: 3px 8px;
+  background: rgba(86, 182, 194, 0.08);
+  border-left: 2px solid var(--one-cyan);
+  border-radius: 0 4px 4px 0;
+  color: var(--one-cyan);
+}
+.console-line.user-log.warn  { border-left-color: var(--one-orange); color: var(--one-orange); }
+.console-line.user-log.error { border-left-color: var(--one-red); color: var(--one-red); }
+
+.user-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 0 5px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #1e2227;
+  background: var(--one-cyan);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+.console-line.user-log.warn  .user-tag { background: var(--one-orange); }
+.console-line.user-log.error .user-tag { background: var(--one-red); }
+
+/* ===== Bloques plegables ===== */
+.sol-bloque > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0;
+}
+.sol-bloque > summary::-webkit-details-marker { display: none; }
+.sol-bloque[open] > summary { margin-bottom: 10px; }
+
+.sol-chevron { display: inline-flex; width: 14px; flex-shrink: 0; color: var(--one-muted); }
+.sol-chevron::before {
+  content: '▸';
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+.sol-bloque[open] .sol-chevron::before { transform: rotate(90deg); }
+.sol-bloque > summary:hover .sol-nombre { color: #fff; }
+
+.sol-header { justify-content: flex-start; }
+.sol-nombre { flex: 1; min-width: 0; }
+
+/* ===== Insignias de rendimiento ===== */
+.sol-badge.rapida { background: rgba(229, 192, 123, 0.15); color: #e5c07b; }
+.sol-badge.lenta  { background: rgba(92, 99, 112, 0.2);   color: var(--text-main); }
+
+/* ===== Botón "Solo esta" ===== */
+.btn-solo {
+  background: transparent;
+  color: var(--one-blue);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.btn-solo:hover { border-color: var(--one-blue); color: #fff; background: rgba(97, 175, 239, 0.1); }
+
+/* ===== Barra de filtro ===== */
+.sol-filtro {
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: var(--one-orange);
+  background: rgba(209, 154, 102, 0.08);
+  border: 1px solid rgba(209, 154, 102, 0.3);
+  border-radius: 6px;
+}
+.sol-filtro code { font-family: 'JetBrains Mono', monospace; color: var(--text-white); }
