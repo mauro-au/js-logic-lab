@@ -17,6 +17,13 @@ const totalEjerciciosEl = document.getElementById('total-ejercicios');
    ============================================================ */
 const modulosEjercicios = import.meta.glob('./exercises/**/index.js', { eager: true });
 
+// Texto fuente de cada soluciones.js (para "Ver código")
+const codigosFuente = import.meta.glob('./exercises/**/soluciones.js', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+});
+
 /* ============================================================
    LISTENERS CON LIMPIEZA (necesario para la recarga en caliente)
    ============================================================ */
@@ -125,10 +132,11 @@ const opciones = cargarOpciones();
 function opcionesDe(ruta) {
   const actual = opciones[ruta];
   if (!actual || typeof actual !== 'object') {
-    opciones[ruta] = { solo: null, colapsadas: [] };
+    opciones[ruta] = { solo: null, colapsadas: [], codigoAbierto: [] };
   } else {
     if (typeof actual.solo !== 'string') actual.solo = null;
     if (!Array.isArray(actual.colapsadas)) actual.colapsadas = [];
+    if (!Array.isArray(actual.codigoAbierto)) actual.codigoAbierto = [];
   }
   return opciones[ruta];
 }
@@ -161,6 +169,7 @@ function capturarConsola(registro) {
       registro.push({
         nivel,
         origen: globalThis.__origenLog ?? 'usuario', // sin marca = código del usuario
+        meta: globalThis.__metaLog ?? null,
         texto: args.map(formatearArgumento).join(' '),
       });
       consolaOriginal[nivel](...args);
@@ -269,17 +278,42 @@ function actualizarBotonCompletado() {
   boton.classList.toggle('active', resuelto);
 }
 
+function renderLineaTerminal({ nivel, origen, meta, texto }) {
+  // Lo que escribes tú en soluciones.js
+  if (origen === 'usuario') {
+    return `<div class="t-log ${nivel}"><span class="t-log-tag">${escapar(nivel)}</span><span class="t-log-texto">${escapar(texto)}</span></div>`;
+  }
+
+  switch (meta?.tipo) {
+    case 'solucion':
+      return `
+        <div class="t-solucion ${escapar(meta.estado)}">
+          <span class="t-sol-nombre">${escapar(meta.nombre)}</span>
+          <span class="t-sol-meta">
+            <span class="t-sol-aciertos">${escapar(meta.aciertos)}</span>
+            <span>⏱ ${escapar(meta.tiempo)}</span>
+            ${meta.nota ? `<span class="t-sol-nota ${escapar(meta.rendimiento)}">${escapar(meta.nota)}</span>` : ''}
+          </span>
+        </div>`;
+    case 'caso':
+      return `
+        <div class="t-caso ${escapar(meta.estado)}">
+          <span class="t-icono">${escapar(meta.icono)}</span>
+          <span class="t-llamada">${escapar(meta.llamada)}</span>
+          ${meta.resultado ? `<span class="t-flecha">→</span><span class="t-resultado">${escapar(meta.resultado)}</span>` : ''}
+        </div>`;
+    case 'detalle':
+      return `<div class="t-detalle"><span class="t-etiqueta">${escapar(meta.etiqueta)}</span><span class="t-valor">${escapar(meta.valor)}</span></div>`;
+    default:
+      return `<div class="t-info">${escapar(texto)}</div>`;
+  }
+}
+
 function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo }) {
   const resuelto = completados.has(ejercicio.rutaReal);
   const numero = modulo.numero ?? ejercicio.numeroCarpeta;
 
-  const lineasConsola = registro
-    .map(({ nivel, origen, texto }) =>
-      origen === 'usuario'
-        ? `<div class="console-line ${nivel} user-log"><span class="user-tag">LOG</span>${escapar(texto)}</div>`
-        : `<div class="console-line ${nivel}"><span class="prompt">›</span> ${escapar(texto)}</div>`
-    )
-    .join('');
+const lineasConsola = registro.map(renderLineaTerminal).join('');
 
   const cuerpoSalida = error
     ? `<div class="error-box"><h5>EXECUTION ERROR</h5><code>${escapar(error?.message ?? error)}</code></div>`
@@ -328,8 +362,8 @@ function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo
             </div>
           </div>
           <div class="fake-console">
-            ${lineasConsola || '<div class="console-line text-muted">No se registraron logs.</div>'}
-            <div class="console-line"><span class="prompt">›</span><span class="cursor-terminal"> </span></div>
+            ${lineasConsola || '<div class="t-info">No se registraron logs.</div>'}
+            <div class="t-cursor"><span class="prompt">›</span><span class="cursor-terminal"> </span></div>
           </div>
         </div>
       </div>
@@ -366,10 +400,12 @@ async function ejecutarEjercicio(ruta) {
   const t0 = performance.now();
 
   try {
-    salida = await modulo.ejecutar({
-      solo: opcionesEjercicio.solo,
-      colapsadas: opcionesEjercicio.colapsadas,
-    });
+  salida = await modulo.ejecutar({
+    solo: opcionesEjercicio.solo,
+    colapsadas: opcionesEjercicio.colapsadas,
+    codigoAbierto: opcionesEjercicio.codigoAbierto,
+    codigo: codigosFuente[ruta.replace(/index\.js$/, 'soluciones.js')],
+  });
   } catch (e) {
     error = e;
   } finally {
@@ -401,6 +437,17 @@ async function ejecutarEjercicio(ruta) {
   if (mismoEjercicio) window.scrollTo(0, scrollY);
 }
 
+async function copiarCodigo(boton) {
+  const texto = boton.closest('.sol-codigo')?.querySelector('code')?.textContent ?? '';
+  try {
+    await navigator.clipboard.writeText(texto);
+    boton.textContent = '✓ Copiado';
+  } catch {
+    boton.textContent = 'No se pudo copiar';
+  }
+  setTimeout(() => { boton.textContent = 'Copiar'; }, 1500);
+}
+
 function toggleRetoCompletado(ruta) {
   if (completados.has(ruta)) completados.delete(ruta);
   else completados.add(ruta);
@@ -424,6 +471,7 @@ contenedorResultado.addEventListener(
 
     if (accion === 'completar') toggleRetoCompletado(rutaActivaGlobal);
     if (accion === 'ejecutar') ejecutarEjercicio(rutaActivaGlobal);
+    if (accion === 'copiar') copiarCodigo(boton);
 
     if (accion === 'solo') {
       evento.preventDefault(); // el botón vive dentro de <summary>: no plegar el bloque
@@ -442,17 +490,23 @@ contenedorResultado.addEventListener(
   'toggle',
   (evento) => {
     const detalle = evento.target;
-    if (
-      !(detalle instanceof HTMLDetailsElement) ||
-      !detalle.classList.contains('sol-bloque') ||
-      !rutaActivaGlobal
-    ) return;
+    if (!(detalle instanceof HTMLDetailsElement) || !rutaActivaGlobal) return;
+
+    const campo = detalle.classList.contains('sol-bloque')
+      ? 'colapsadas'
+      : detalle.classList.contains('sol-codigo')
+        ? 'codigoAbierto'
+        : null;
+    if (!campo) return;
 
     const op = opcionesDe(rutaActivaGlobal);
-    const plegadas = new Set(op.colapsadas);
-    if (detalle.open) plegadas.delete(detalle.dataset.nombre);
-    else plegadas.add(detalle.dataset.nombre);
-    op.colapsadas = [...plegadas];
+    const lista = new Set(op[campo]);
+    // "colapsadas" guarda los cerrados; "codigoAbierto" guarda los abiertos
+    const guardar = campo === 'colapsadas' ? !detalle.open : detalle.open;
+    if (guardar) lista.add(detalle.dataset.nombre);
+    else lista.delete(detalle.dataset.nombre);
+
+    op[campo] = [...lista];
     guardarOpciones();
   },
   { capture: true, signal } // "toggle" no burbujea

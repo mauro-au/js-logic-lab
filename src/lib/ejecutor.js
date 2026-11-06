@@ -1,6 +1,9 @@
+import { extraerSoluciones, resaltar } from './codigo.js';
+
 const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳' };
 const NIVELES = ['log', 'info', 'warn', 'error'];
 const PREFIJO_SOLO = 'solo_';
+const MAX_LOG_USUARIO = 400;
 
 const escapar = (valor) =>
   String(valor ?? '')
@@ -42,18 +45,20 @@ const entradaCorta = (entrada) => entrada.map((a) => resumir(a, 30)).join(', ');
 const formatearTiempo = (ms) =>
   ms == null ? '—' : ms < 1 ? `${(ms * 1000).toFixed(1)} µs` : `${ms.toFixed(2)} ms`;
 
-/* ---------- Separación de logs: sistema vs usuario ---------- */
+/* ---------- Terminal estructurada: cada línea lleva origen y tipo ---------- */
 
-function emitir(origen, nivel, texto) {
-  const anterior = globalThis.__origenLog;
+function emitir(origen, nivel, texto, meta = null) {
+  const previo = { origen: globalThis.__origenLog, meta: globalThis.__metaLog };
   globalThis.__origenLog = origen;
+  globalThis.__metaLog = meta;
   try {
     console[nivel](texto);
   } finally {
-    globalThis.__origenLog = anterior;
+    globalThis.__origenLog = previo.origen;
+    globalThis.__metaLog = previo.meta;
   }
 }
-const sistema = (nivel, texto) => emitir('sistema', nivel, texto);
+const sistema = (nivel, texto, meta) => emitir('sistema', nivel, texto, meta);
 
 // Ejecuta una acción guardando (sin imprimir) los console.* que haga tu código
 function conCaptura(accion) {
@@ -75,11 +80,13 @@ function conCaptura(accion) {
   return { valor, error, logs };
 }
 
-const textoLog = (args) =>
-  args.map((a) => (typeof a === 'string' ? a : mostrar(a))).join(' ');
+const textoLog = (args) => {
+  const t = args.map((a) => (typeof a === 'string' ? a : mostrar(a))).join(' ');
+  return t.length > MAX_LOG_USUARIO ? `${t.slice(0, MAX_LOG_USUARIO)}… (+${t.length - MAX_LOG_USUARIO} car.)` : t;
+};
 
 function imprimirLogsUsuario(logs) {
-  logs.forEach(({ nivel, args }) => emitir('usuario', nivel, textoLog(args)));
+  logs.forEach(({ nivel, args }) => emitir('usuario', nivel, textoLog(args), { tipo: 'log' }));
 }
 
 /* ---------- Evaluación (una vez, con logs) ---------- */
@@ -101,7 +108,6 @@ function evaluar(fn, caso) {
 
 let sumidero; // evita que el motor descarte llamadas "inútiles"
 
-// Retorna el tiempo promedio (ms) de ejecutar TODOS los casos una vez
 function medir(fn, casos) {
   let promedio = null;
 
@@ -114,13 +120,12 @@ function medir(fn, casos) {
     correr();
     const primera = performance.now() - t;
 
-    // Solución lenta: una sola medición basta
     if (primera > 20) {
       promedio = primera;
       return;
     }
 
-    for (let i = 0; i < 10; i++) correr(); // calentamiento
+    for (let i = 0; i < 10; i++) correr();
 
     let n = 0;
     const inicio = performance.now();
@@ -145,12 +150,13 @@ function medir(fn, casos) {
  */
 export function crearEjecutor({ soluciones, casos, demo }) {
   return function ejecutar(opciones = {}) {
-    const { solo = null, colapsadas = [] } = opciones ?? {};
+    const { solo = null, colapsadas = [], codigoAbierto = [], codigo = '' } = opciones ?? {};
+    const funcionesFuente = extraerSoluciones(codigo);
 
     const todas = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
 
     if (!todas.length) {
-      sistema('warn', 'No hay soluciones. Exporta una función en soluciones.js');
+      sistema('warn', 'No hay soluciones. Exporta una función en soluciones.js', { tipo: 'info' });
       return '<p class="sol-vacio">⚠️ No hay soluciones. Exporta una función en <code>soluciones.js</code>.</p>';
     }
 
@@ -176,48 +182,65 @@ export function crearEjecutor({ soluciones, casos, demo }) {
       return { nombre, fn, resultados, pasados, pendientes, promedio };
     });
 
-    // Solo se compara entre soluciones 100% correctas, y si hay al menos dos
     const medidos = datos.filter((d) => d.promedio != null);
     const mejor = medidos.length > 1 ? Math.min(...medidos.map((d) => d.promedio)) : null;
 
     /* ---------- 2) Terminal + HTML ---------- */
     if (filtro === 'prefijo') {
-      sistema('info', `Filtrado por prefijo "${PREFIJO_SOLO}": ${lista.length} de ${todas.length} soluciones`);
+      sistema('info', `Filtrado por prefijo "${PREFIJO_SOLO}": ${lista.length} de ${todas.length} soluciones`, { tipo: 'info' });
     } else if (filtro === 'manual') {
-      sistema('info', `Mostrando solo "${solo}": ${todas.length - 1} soluciones ocultas`);
+      sistema('info', `Mostrando solo "${solo}": ${todas.length - 1} soluciones ocultas`, { tipo: 'info' });
     }
 
-    const bloques = datos.map((d, indice) => {
+    const bloques = datos.map((d) => {
       const { nombre, fn, resultados, pasados, pendientes, promedio } = d;
       const claseEstado = pasados === casos.length ? 'ok' : pendientes ? 'pendiente' : 'fallo';
 
       const esMejor = mejor != null && promedio === mejor;
       const razon = mejor != null && promedio != null ? promedio / mejor : 1;
       const esLenta = mejor != null && !esMejor && razon >= 1.1;
-
-      const etiquetaTerminal = esMejor
-        ? '  🏆 más rápida'
-        : esLenta
-          ? `  (×${razon.toFixed(1)} más lenta)`
-          : '';
+      const nota = esMejor ? '🏆 más rápida' : esLenta ? `×${razon.toFixed(1)} más lenta` : '';
 
       /* ---------- TERMINAL ---------- */
-      if (indice > 0 || filtro) sistema('log', '');
-      sistema('log', `▸ ${nombre}  ${pasados}/${casos.length} · ⏱ ${formatearTiempo(promedio)}${etiquetaTerminal}`);
+      sistema(
+        'log',
+        `▸ ${nombre}  ${pasados}/${casos.length} · ${formatearTiempo(promedio)} ${nota}`.trim(),
+        {
+          tipo: 'solucion',
+          nombre,
+          aciertos: `${pasados}/${casos.length}`,
+          tiempo: formatearTiempo(promedio),
+          nota,
+          estado: claseEstado,
+          rendimiento: esMejor ? 'mejor' : esLenta ? 'lenta' : '',
+        }
+      );
 
       resultados.forEach(({ caso, estado, valor, texto, logs }) => {
         const llamada = `${nombre}(${entradaCorta(caso.entrada)})`;
+        const nivel = estado === 'error' ? 'error' : estado === 'fallo' ? 'warn' : 'log';
 
-        if (estado === 'ok') {
-          sistema('log', `  ${ICONOS.ok} ${llamada} → ${resumir(valor)}`);
-        } else if (estado === 'pendiente') {
-          sistema('log', `  ${ICONOS.pendiente} ${llamada} → pendiente`);
-        } else if (estado === 'error') {
-          sistema('error', `  ${ICONOS.error} ${llamada} → ${texto}`);
-        } else {
-          sistema('warn', `  ${ICONOS.fallo} ${llamada}`);
-          sistema('warn', `      esperado: ${resumir(caso.esperado, 120)}`);
-          sistema('warn', `      obtenido: ${resumir(valor, 120)}`);
+        const resultado =
+          estado === 'ok' ? resumir(valor)
+          : estado === 'pendiente' ? 'pendiente'
+          : estado === 'error' ? texto
+          : '';
+
+        sistema(nivel, `${ICONOS[estado]} ${llamada}${resultado ? ` → ${resultado}` : ''}`, {
+          tipo: 'caso',
+          estado,
+          icono: ICONOS[estado],
+          llamada,
+          resultado,
+        });
+
+        if (estado === 'fallo') {
+          sistema('warn', `esperado: ${resumir(caso.esperado, 120)}`, {
+            tipo: 'detalle', etiqueta: 'esperado', valor: resumir(caso.esperado, 120),
+          });
+          sistema('warn', `obtenido: ${resumir(valor, 120)}`, {
+            tipo: 'detalle', etiqueta: 'obtenido', valor: resumir(valor, 120),
+          });
         }
 
         imprimirLogsUsuario(logs);
@@ -228,10 +251,14 @@ export function crearEjecutor({ soluciones, casos, demo }) {
       if (demo && !pendientes) {
         const r = conCaptura(() => demo(fn));
         if (r.error) {
-          sistema('error', `  ${ICONOS.error} Demo falló: ${r.error?.message ?? r.error}`);
+          sistema('error', `Demo falló: ${r.error?.message ?? r.error}`, {
+            tipo: 'caso', estado: 'error', icono: ICONOS.error, llamada: 'Demo', resultado: String(r.error?.message ?? r.error),
+          });
           bloqueDemo = `<p class="sol-vacio">💥 Demo falló: ${escapar(r.error?.message ?? r.error)}</p>`;
         } else {
-          sistema('log', `  ★ Demo → ${resumir(r.valor, 90)}`);
+          sistema('log', `★ Demo → ${resumir(r.valor, 90)}`, {
+            tipo: 'caso', estado: 'demo', icono: '★', llamada: 'Demo (reto principal)', resultado: resumir(r.valor, 90),
+          });
           bloqueDemo = `
             <details class="sol-demo">
               <summary>Ver demo (reto principal)</summary>
@@ -269,6 +296,16 @@ export function crearEjecutor({ soluciones, casos, demo }) {
 
       const abierta = !colapsadas.includes(nombre);
 
+      const textoCodigo = funcionesFuente.get(nombre) ?? fn.toString();
+      const bloqueCodigo = `
+        <details class="sol-codigo" data-nombre="${escapar(nombre)}" ${codigoAbierto.includes(nombre) ? 'open' : ''}>
+          <summary>Ver código</summary>
+          <div class="codigo-caja">
+            <button type="button" class="btn-copiar" data-accion="copiar">Copiar</button>
+            <pre><code class="hljs">${resaltar(textoCodigo)}</code></pre>
+          </div>
+        </details>`;
+
       return `
         <details class="sol-bloque" data-nombre="${escapar(nombre)}" ${abierta ? 'open' : ''}>
           <summary class="sol-header">
@@ -291,6 +328,7 @@ export function crearEjecutor({ soluciones, casos, demo }) {
               </table>
             </div>
             ${bloqueDemo}
+            ${bloqueCodigo}
           </div>
         </details>`;
     });

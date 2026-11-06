@@ -415,3 +415,184 @@ select { color: var(--one-cyan); cursor: pointer; }
   border-radius: 6px;
 }
 .sol-filtro code { font-family: 'JetBrains Mono', monospace; color: var(--text-white); }
+
+/* ===== Ver código ===== */
+.sol-codigo { margin-top: 12px; }
+.sol-codigo > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.75rem;
+  color: var(--one-blue);
+}
+.sol-codigo > summary::-webkit-details-marker { display: none; }
+.sol-codigo > summary::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: 6px;
+  transition: transform 0.15s ease;
+}
+.sol-codigo[open] > summary::before { transform: rotate(90deg); }
+.sol-codigo > summary:hover { color: #fff; }
+
+.codigo-caja { position: relative; margin-top: 8px; }
+.codigo-caja pre {
+  margin: 0;
+  padding: 14px 16px;
+  max-height: 380px;
+  overflow: auto;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+.codigo-caja code {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: #abb2bf;
+  white-space: pre;
+  tab-size: 2;
+  background: none;
+}
+
+.btn-copiar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  padding: 2px 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.68rem;
+  color: var(--text-main);
+  background: #1e2227;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.15s ease;
+}
+.btn-copiar:hover { opacity: 1; color: #fff; border-color: var(--one-blue); }
+
+/* Colores del resaltado (One Dark) */
+.hljs-comment, .hljs-quote            { color: #5c6370; font-style: italic; }
+.hljs-doctag                          { color: #c678dd; font-style: normal; }
+.hljs-keyword, .hljs-selector-tag     { color: #c678dd; }
+.hljs-string, .hljs-regexp            { color: #98c379; }
+.hljs-number, .hljs-literal           { color: #d19a66; }
+.hljs-built_in, .hljs-title.class_    { color: #e5c07b; }
+.hljs-title, .hljs-title.function_    { color: #61afef; }
+.hljs-variable.language_              { color: #e06c75; }
+.hljs-property, .hljs-attr            { color: #e06c75; }
+.hljs-params, .hljs-subst             { color: #abb2bf; }
+.hljs-template-variable               { color: #e06c75; }
+
+/* ===== Terminal estructurada ===== */
+.fake-console { padding: 8px 0 16px; line-height: 1.5; }
+
+/* Cabecera de cada solución */
+.t-solucion {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 8px 20px;
+  background: #151b27;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  border-left: 3px solid var(--one-green);
+}
+.fake-console > .t-solucion:first-child { margin-top: 0; }
+.t-solucion.fallo { border-left-color: var(--one-red); }
+.t-solucion.pendiente { border-left-color: var(--one-orange); }
+
+.t-sol-nombre {
+  font-weight: 600;
+  color: var(--one-cyan);
+  word-break: break-all;
+}
+.t-sol-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: var(--one-muted);
+}
+.t-sol-aciertos { color: var(--one-green); font-weight: 600; }
+.t-solucion.fallo .t-sol-aciertos { color: var(--one-red); }
+.t-solucion.pendiente .t-sol-aciertos { color: var(--one-orange); }
+.t-sol-nota { padding: 1px 6px; border-radius: 8px; background: rgba(92, 99, 112, 0.2); }
+.t-sol-nota.mejor { color: #e5c07b; background: rgba(229, 192, 123, 0.15); }
+
+/* Cada caso de prueba */
+.t-caso {
+  display: grid;
+  grid-template-columns: 22px auto auto 1fr;
+  column-gap: 8px;
+  align-items: baseline;
+  padding: 3px 20px 3px 24px;
+  font-size: 0.8rem;
+}
+.t-icono { text-align: center; }
+.t-llamada { color: var(--text-white); white-space: nowrap; }
+.t-flecha { color: var(--one-muted); }
+.t-resultado { color: var(--text-main); word-break: break-word; min-width: 0; }
+
+.t-caso.fallo .t-llamada, .t-caso.error .t-llamada { color: var(--one-orange); }
+.t-caso.error .t-resultado { color: var(--one-red); }
+.t-caso.pendiente .t-llamada,
+.t-caso.pendiente .t-resultado { color: var(--one-muted); }
+.t-caso.demo { margin-top: 6px; }
+.t-caso.demo .t-icono { color: var(--one-purple); }
+.t-caso.demo .t-llamada { color: var(--one-purple); }
+
+/* Esperado / obtenido cuando un caso falla */
+.t-detalle {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 8px;
+  padding: 1px 20px 1px 54px;
+  font-size: 0.75rem;
+}
+.t-etiqueta { color: var(--one-muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; }
+.t-valor { color: var(--one-orange); word-break: break-word; }
+
+/* Lo que escribes tú con console.* en soluciones.js, pegado a su caso */
+.t-log {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 2px 20px 2px 54px;
+  padding: 2px 10px;
+  max-height: 110px;
+  overflow: auto;
+  font-size: 0.75rem;
+  color: var(--one-cyan);
+  border-left: 2px solid var(--one-cyan);
+  background: rgba(86, 182, 194, 0.06);
+  border-radius: 0 4px 4px 0;
+}
+.t-log-tag {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--one-muted);
+}
+.t-log-texto { white-space: pre-wrap; word-break: break-word; min-width: 0; }
+.t-log.warn  { color: var(--one-orange); border-left-color: var(--one-orange); background: rgba(209, 154, 102, 0.06); }
+.t-log.error { color: var(--one-red); border-left-color: var(--one-red); background: rgba(224, 108, 117, 0.06); }
+
+/* Avisos del sistema y cursor */
+.t-info { padding: 3px 20px; font-size: 0.75rem; color: var(--one-muted); white-space: pre-wrap; }
+.t-cursor { padding: 8px 20px 0; }
+.t-cursor .prompt { color: var(--one-purple); margin-right: 8px; font-weight: bold; }
+
+@media (max-width: 900px) {
+  .t-caso { grid-template-columns: 22px 1fr; }
+  .t-flecha { display: none; }
+  .t-resultado { grid-column: 2; }
+}
