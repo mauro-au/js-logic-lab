@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "generar-readme": "node scripts/generar-readme.mjs",
-    "nuevo": "node scripts/nuevo.mjs"
+    "nuevo": "node scripts/nuevo.mjs",
+    "importar": "node scripts/importar-retos.mjs"
   },
   "devDependencies": {
     "vite": "^7.0.0"

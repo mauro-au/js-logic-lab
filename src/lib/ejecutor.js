@@ -1,6 +1,6 @@
 import { extraerSoluciones, resaltar } from './codigo.js';
 
-const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳' };
+const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳', libre: '▶' };
 const NIVELES = ['log', 'info', 'warn', 'error'];
 const PREFIJO_SOLO = 'solo_';
 const MAX_LOG_USUARIO = 400;
@@ -45,6 +45,8 @@ const entradaCorta = (entrada) => entrada.map((a) => resumir(a, 30)).join(', ');
 const formatearTiempo = (ms) =>
   ms == null ? '—' : ms < 1 ? `${(ms * 1000).toFixed(1)} µs` : `${ms.toFixed(2)} ms`;
 
+const cuentaComoAcierto = (r) => r.estado === 'ok' || r.estado === 'libre';
+
 /* ---------- Terminal estructurada: cada línea lleva origen y tipo ---------- */
 
 function emitir(origen, nivel, texto, meta = null) {
@@ -60,7 +62,6 @@ function emitir(origen, nivel, texto, meta = null) {
 }
 const sistema = (nivel, texto, meta) => emitir('sistema', nivel, texto, meta);
 
-// Ejecuta una acción guardando (sin imprimir) los console.* que haga tu código
 function conCaptura(accion) {
   const logs = [];
   const originales = {};
@@ -97,6 +98,20 @@ function evaluar(fn, caso) {
   if (error) {
     return { estado: 'error', texto: `Error: ${error?.message ?? error}`, valor: undefined, logs };
   }
+
+  // Modo libre: sin casos de prueba, solo se ejecuta y se muestra lo que ocurre
+  if (caso.libre) {
+    if (valor === undefined && !logs.length) {
+      return { estado: 'pendiente', texto: '—', valor: undefined, logs };
+    }
+    return {
+      estado: 'libre',
+      texto: valor === undefined ? '(sin retorno)' : mostrar(valor),
+      valor,
+      logs,
+    };
+  }
+
   if (valor === undefined || valor === null) {
     return { estado: 'pendiente', texto: '—', valor: undefined, logs };
   }
@@ -106,7 +121,7 @@ function evaluar(fn, caso) {
 
 /* ---------- Benchmark: promedio de muchas repeticiones ---------- */
 
-let sumidero; // evita que el motor descarte llamadas "inútiles"
+let sumidero;
 
 function medir(fn, casos) {
   let promedio = null;
@@ -145,10 +160,13 @@ function medir(fn, casos) {
  * Crea la función ejecutar() de un ejercicio.
  * @param {object}   config
  * @param {object}   config.soluciones  import * as soluciones from './soluciones.js'
- * @param {Array}    config.casos       [{ entrada: [args], esperado }]
+ * @param {Array}    [config.casos]     [{ entrada: [args], esperado }]. Vacío = modo libre
  * @param {Function} [config.demo]      (solucion) => resultado a mostrar (opcional)
  */
-export function crearEjecutor({ soluciones, casos, demo }) {
+export function crearEjecutor({ soluciones, casos: casosIniciales, demo }) {
+  const libre = !Array.isArray(casosIniciales) || casosIniciales.length === 0;
+  const casos = libre ? [{ entrada: [], libre: true }] : casosIniciales;
+
   return function ejecutar(opciones = {}) {
     const { solo = null, colapsadas = [], codigoAbierto = [], codigo = '' } = opciones ?? {};
     const funcionesFuente = extraerSoluciones(codigo);
@@ -174,15 +192,18 @@ export function crearEjecutor({ soluciones, casos, demo }) {
 
     /* ---------- 1) Evaluar y medir (sin imprimir nada) ---------- */
     const datos = lista.map(([nombre, fn]) => {
+      const t0 = performance.now();
       const resultados = casos.map((caso) => ({ caso, ...evaluar(fn, caso) }));
-      const pasados = resultados.filter((r) => r.estado === 'ok').length;
+      const unaVez = performance.now() - t0;
+      const pasados = resultados.filter(cuentaComoAcierto).length;
       const pendientes = resultados.some((r) => r.estado === 'pendiente');
       const completa = pasados === casos.length;
-      const promedio = completa ? medir(fn, casos) : null;
+      // Modo libre: una sola ejecución (no se repite, puede tener efectos o ser lenta)
+      const promedio = !completa ? null : libre ? unaVez : medir(fn, casos);
       return { nombre, fn, resultados, pasados, pendientes, promedio };
     });
 
-    const medidos = datos.filter((d) => d.promedio != null);
+    const medidos = libre ? [] : datos.filter((d) => d.promedio != null);
     const mejor = medidos.length > 1 ? Math.min(...medidos.map((d) => d.promedio)) : null;
 
     /* ---------- 2) Terminal + HTML ---------- */
@@ -195,6 +216,7 @@ export function crearEjecutor({ soluciones, casos, demo }) {
     const bloques = datos.map((d) => {
       const { nombre, fn, resultados, pasados, pendientes, promedio } = d;
       const claseEstado = pasados === casos.length ? 'ok' : pendientes ? 'pendiente' : 'fallo';
+      const marcador = libre ? 'libre' : `${pasados}/${casos.length}`;
 
       const esMejor = mejor != null && promedio === mejor;
       const razon = mejor != null && promedio != null ? promedio / mejor : 1;
@@ -204,11 +226,11 @@ export function crearEjecutor({ soluciones, casos, demo }) {
       /* ---------- TERMINAL ---------- */
       sistema(
         'log',
-        `▸ ${nombre}  ${pasados}/${casos.length} · ${formatearTiempo(promedio)} ${nota}`.trim(),
+        `▸ ${nombre}  ${marcador} · ${formatearTiempo(promedio)} ${nota}`.trim(),
         {
           tipo: 'solucion',
           nombre,
-          aciertos: `${pasados}/${casos.length}`,
+          aciertos: marcador,
           tiempo: formatearTiempo(promedio),
           nota,
           estado: claseEstado,
@@ -222,6 +244,7 @@ export function crearEjecutor({ soluciones, casos, demo }) {
 
         const resultado =
           estado === 'ok' ? resumir(valor)
+          : estado === 'libre' ? (valor === undefined ? '(sin retorno)' : resumir(valor))
           : estado === 'pendiente' ? 'pendiente'
           : estado === 'error' ? texto
           : '';
@@ -274,8 +297,8 @@ export function crearEjecutor({ soluciones, casos, demo }) {
           ({ caso, estado, texto }) => `
           <tr class="fila-${estado}">
             <td class="col-estado">${ICONOS[estado]}</td>
-            <td><code>${escapar(entradaTexto(caso.entrada))}</code></td>
-            <td><code>${escapar(mostrar(caso.esperado))}</code></td>
+            <td><code>${escapar(caso.libre ? '(sin argumentos)' : entradaTexto(caso.entrada))}</code></td>
+            <td><code>${escapar(caso.libre ? '—' : mostrar(caso.esperado))}</code></td>
             <td><code>${escapar(texto)}</code></td>
           </tr>`
         )
@@ -313,8 +336,8 @@ export function crearEjecutor({ soluciones, casos, demo }) {
             <h4 class="sol-nombre">${escapar(nombre)}</h4>
             <div class="sol-meta">
               ${insignia}
-              <span class="sol-badge ${claseEstado}">${pasados}/${casos.length}</span>
-              <span class="sol-tiempo" title="Promedio de ejecutar todos los casos">⏱ ${formatearTiempo(promedio)}</span>
+              <span class="sol-badge ${claseEstado}">${marcador}</span>
+              <span class="sol-tiempo" title="${libre ? 'Tiempo de una ejecución' : 'Promedio de ejecutar todos los casos'}">⏱ ${formatearTiempo(promedio)}</span>
               ${botonSolo}
             </div>
           </summary>

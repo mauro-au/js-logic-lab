@@ -1,0 +1,60 @@
+# 96 · Simulador de clima
+
+![Dificultad](https://img.shields.io/badge/dificultad-facil-brightgreen)
+![Origen](https://img.shields.io/badge/origen-mouredev%202023-blue)
+
+| Origen | Año | Tags |
+| ------ | --- | ---- |
+| mouredev | 2023 | — |
+
+## 📝 Enunciado
+
+```text
+Crea una función que simule las condiciones climáticas (temperatura y probabilidad de lluvia)
+de un lugar ficticio al pasar un número concreto de días según estas reglas:
+- La temperatura inicial y el % de probabilidad de lluvia lo define el usuario.
+- Cada día que pasa:
+  - 10% de posibilidades de que la temperatura aumente o disminuya 2 grados.
+  - Si la temperatura supera los 25 grados, la probabilidad de lluvia al día
+    siguiente aumenta en un 20%.
+  - Si la temperatura baja de 5 grados, la probabilidad de lluvia al día
+    siguiente disminuya en un 20%.
+  - Si llueve (100%), la temperatura del día siguiente disminuye en 1 grado.
+- La función recibe el número de días de la predicción y muestra la temperatura
+  y si llueve durante todos esos días.
+- También mostrará la temperatura máxima y mínima de ese periodo y cuántos días va a llover.
+```
+
+Fuente: [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/)
+
+## 🔀 Diagrama de flujo
+
+![Diagrama de flujo](./diagrama.png)
+
+> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+
+## 🧠 Explicación del algoritmo
+
+> _Pendiente: completar al resolver el ejercicio._
+
+1. Paso uno…
+2. Paso dos…
+3. Paso tres…
+
+## ✅ Casos de prueba
+
+| Entrada | Salida esperada | Motivo |
+| ------- | --------------- | ------ |
+| …       | …               | …      |
+
+## 💻 Soluciones
+
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `solucion1` | … | O(?) | O(?) |
+
+## 📚 Notas / aprendizajes
+
+- Qué aprendí o qué haría distinto.

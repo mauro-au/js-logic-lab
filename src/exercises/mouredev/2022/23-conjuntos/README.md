@@ -1,0 +1,54 @@
+# 23 · Conjuntos
+
+![Dificultad](https://img.shields.io/badge/dificultad-facil-brightgreen)
+![Origen](https://img.shields.io/badge/origen-mouredev%202022-blue)
+
+| Origen | Año | Tags |
+| ------ | --- | ---- |
+| mouredev | 2022 | `arreglos` |
+
+## 📝 Enunciado
+
+```text
+Crea una función que reciba dos array, un booleano y retorne un array.
+- Si el booleano es verdadero buscará y retornará los elementos comunes
+  de los dos array.
+- Si el booleano es falso buscará y retornará los elementos no comunes
+  de los dos array.
+- No se pueden utilizar operaciones del lenguaje que
+  lo resuelvan directamente.
+```
+
+Fuente: [retosdeprogramacion.com](https://retosdeprogramacion.com/ejercicios/)
+
+## 🔀 Diagrama de flujo
+
+![Diagrama de flujo](./diagrama.png)
+
+> Fuente editable: [`diagrama.drawio`](./diagrama.drawio)
+
+## 🧠 Explicación del algoritmo
+
+> _Pendiente: completar al resolver el ejercicio._
+
+1. Paso uno…
+2. Paso dos…
+3. Paso tres…
+
+## ✅ Casos de prueba
+
+| Entrada | Salida esperada | Motivo |
+| ------- | --------------- | ------ |
+| …       | …               | …      |
+
+## 💻 Soluciones
+
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `solucion1` | … | O(?) | O(?) |
+
+## 📚 Notas / aprendizajes
+
+- Qué aprendí o qué haría distinto.

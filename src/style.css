@@ -233,7 +233,7 @@ select { color: var(--one-cyan); cursor: pointer; }
 .console-line.warn { color: var(--one-orange); }
 .console-line.error { color: var(--one-red); }
 .status-error { color: var(--one-red); }
-.enunciado-text-style { white-space: pre-line; }
+.enunciado-text-style { white-space: pre-wrap; word-break: break-word; }
 
 /* Evita que contenido ancho desborde las columnas */
 .panel-izquierdo, .panel-derecho { min-width: 0; }
