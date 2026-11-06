@@ -45,9 +45,14 @@ Escribe un programa que imprima los 50 primeros números de la sucesión de Fibo
 | `2` | `[0, 1]` | Los dos casos base |
 | `8` | `[0, 1, 1, 2, 3, 5, 8, 13]` | Primeros términos de la serie |
 
-## 💻 Solución
+## 💻 Soluciones
 
-[Ver código → `index.js`](./index.js)
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `fibonacciIterativo` | Bucle con dos variables | O(n) | O(n) |
+| _(agrega una fila por cada nueva solución)_ | | | |
 
 ## 📚 Notas / aprendizajes
 

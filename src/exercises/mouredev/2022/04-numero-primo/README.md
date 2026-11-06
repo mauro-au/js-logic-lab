@@ -54,9 +54,14 @@ Hecho esto, imprime los números primos entre 1 y 100.
 **Primos entre 1 y 100 (25 en total):**
 `2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97`
 
-## 💻 Solución
+## 💻 Soluciones
 
-[Ver código → `index.js`](./index.js)
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `numeroPrimo` | Bucle con dos variables | O(n) | O(n) |
+| _(agrega una fila por cada nueva solución)_ | | | |
 
 ## 📚 Notas / aprendizajes
 

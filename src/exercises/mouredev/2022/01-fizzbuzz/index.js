@@ -1,3 +1,6 @@
+import * as soluciones from './soluciones.js';
+import { crearEjecutor } from '../../../../lib/ejecutor.js';
+
 export const numero = '01';
 export const dificultad = 'Fácil';
 export const tags = ['bucles', 'condicionales', 'módulo'];
@@ -7,27 +10,12 @@ export const enunciado = `Escribe un programa que muestre por consola los númer
 - Si es múltiplo de 5, muestra "buzz".
 - Si es múltiplo de 3 y de 5, muestra "fizzbuzz".`;
 
-function fizzBuzz(limite = 100) {
-  const resultado = [];
+const casos = [
+  { entrada: [0], esperado: [] },
+  { entrada: [5], esperado: [1, 2, 'fizz', 4, 'buzz'] },
+  { entrada: [15], esperado: [1, 2, 'fizz', 4, 'buzz', 'fizz', 7, 8, 'fizz', 'buzz', 11, 'fizz', 13, 14, 'fizzbuzz'] },
+];
 
-  for (let i = 1; i <= limite; i++) {
-    if (i % 15 === 0) resultado.push('fizzbuzz');
-    else if (i % 3 === 0) resultado.push('fizz');
-    else if (i % 5 === 0) resultado.push('buzz');
-    else resultado.push(i);
-  }
+const demo = (fizzBuzz) => fizzBuzz(100);
 
-  return resultado;
-}
-
-export function ejecutar() {
-  const resultado = fizzBuzz(100);
-  resultado.forEach((valor) => console.log(valor));
-
-  // Lo que se retorna se inserta como HTML en "Vista en pantalla"
-  const items = resultado
-    .map((v) => `<span style="display:inline-block;min-width:3.5rem">${v}</span>`)
-    .join('');
-
-  return `<div style="line-height:1.8">${items}</div>`;
-}
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

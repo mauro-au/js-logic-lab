@@ -46,9 +46,14 @@ Escribe una función que reciba dos palabras (String) y retorne verdadero o fals
 | `"casa"`, `"cosa"` | `false` | Letras distintas |
 | `"abc"`, `"ab"` | `false` | Distinta longitud |
 
-## 💻 Solución
+## 💻 Soluciones
 
-[Ver código → `index.js`](./index.js)
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `anagrama` | Bucle con dos variables | O(n) | O(n) |
+| _(agrega una fila por cada nueva solución)_ | | | |
 
 ## 📚 Notas / aprendizajes
 

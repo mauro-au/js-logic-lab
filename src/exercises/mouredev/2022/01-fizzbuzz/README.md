@@ -42,9 +42,14 @@ Escribe un programa que muestre por consola los números del 1 al 100.
 | `5`     | `buzz`          |
 | `15`    | `fizzbuzz`      |
 
-## 💻 Solución
+## 💻 Soluciones
 
-[Ver código → `index.js`](./index.js)
+Código en [`soluciones.js`](./soluciones.js).
+
+| Solución | Idea | Tiempo | Espacio |
+| -------- | ---- | ------ | ------- |
+| `fizzBuzz` | Bucle con dos variables | O(n) | O(n) |
+| _(agrega una fila por cada nueva solución)_ | | | |
 
 ## 📚 Notas / aprendizajes
 
