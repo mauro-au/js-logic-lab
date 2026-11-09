@@ -28,9 +28,3 @@ export function anagramaContando(palabra1, palabra2) {
   }
   return true;
 }
-
-// Solución 3: intencionalmente incorrecta, para ver cómo se muestra un fallo
-export function anagramaIncorrecto(palabra1, palabra2) {
-  // Solo compara la longitud: "casa" y "cosa" darán true y fallará
-  return palabra1.length === palabra2.length;
-}

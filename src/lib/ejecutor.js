@@ -1,8 +1,10 @@
-import { extraerSoluciones, resaltar } from './codigo.js';
+import { extraerSoluciones } from './codigo.js';
+import { resaltar } from './resaltado.js';
 
 const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳', libre: '▶' };
 const NIVELES = ['log', 'info', 'debug', 'warn', 'error'];
 const PREFIJO_SOLO = 'solo_';
+const NOMBRE_USUARIO = 'TU CÓDIGO';
 const MAX_LOG_TEXTO = 400;
 const MAX_LOGS_CAPTURA = 500;
 const MAX_LOGS_MOSTRADOS = 500;
@@ -162,7 +164,6 @@ function resumir(v, max = 60) {
   return t.length > max ? `${t.slice(0, max - 1)}…` : t;
 }
 
-const entradaTexto = (entrada) => entrada.map(mostrar).join(', ');
 const entradaCorta = (entrada) => entrada.map((a) => resumir(a, 30)).join(', ');
 
 const formatearTiempo = (ms) =>
@@ -316,9 +317,26 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
   const libre = casosValidos.length === 0;
   const casos = libre ? [{ entrada: [], libre: true }] : casosValidos;
 
+  /**
+   * Ejecuta todas las soluciones contra los casos y devuelve el HTML de resultados.
+   * @param {object} [opciones]
+   * @param {string|null} [opciones.solo]           muestra solo esa solución
+   * @param {string[]} [opciones.colapsadas]        bloques plegados
+   * @param {string[]} [opciones.codigoAbierto]     bloques de código abiertos
+   * @param {string} [opciones.codigo]              fuente de soluciones.js (para mostrarla)
+   * @param {{fuente?: string, soluciones?: Array<{nombre: string, fn: Function}>, error?: string|null}} [opciones.codigoUsuario]
+   *                                               código escrito en el editor, compilado por compilarCodigoUsuario
+   */
   return function ejecutar(opciones = {}) {
-    const { solo = null, colapsadas = [], codigoAbierto = [], codigo = '' } = opciones ?? {};
+    const {
+      solo = null,
+      colapsadas = [],
+      codigoAbierto = [],
+      codigo = '',
+      codigoUsuario = null,
+    } = opciones ?? {};
     const funcionesFuente = extraerSoluciones(codigo);
+    const fuentesUsuario = new Map();
     const estadoLogs = { mostrados: 0, omitidos: 0 };
 
     if (descartados > 0) {
@@ -327,11 +345,31 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
       });
     }
 
-    const todas = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
+    const propias = Object.entries(soluciones).filter(([, f]) => typeof f === 'function');
+
+    /* ---------- El código del usuario es una solución más: "TU CÓDIGO" ---------- */
+    const escritas = Array.isArray(codigoUsuario?.soluciones)
+      ? codigoUsuario.soluciones.filter((s) => s && typeof s.fn === 'function')
+      : [];
+    const nuestras = escritas.length
+      ? escritas.length === 1
+        ? [[NOMBRE_USUARIO, escritas[0].fn]]
+        : escritas.map(({ nombre, fn }) => [`${NOMBRE_USUARIO} · ${nombre || 'anónima'}`, fn])
+      : [];
+    for (const [nombre] of nuestras) {
+      if (codigoUsuario?.fuente) fuentesUsuario.set(nombre, codigoUsuario.fuente);
+    }
+
+    const todas = [...nuestras, ...propias];
+
+    if (codigoUsuario?.error) {
+      sistema('warn', `Editor: ${codigoUsuario.error}`, { tipo: 'info' });
+    }
 
     if (!todas.length) {
-      sistema('warn', 'No hay soluciones. Exporta una función en soluciones.js', { tipo: 'info' });
-      return '<p class="sol-vacio">⚠️ No hay soluciones. Exporta una función en <code>soluciones.js</code>.</p>';
+      const aviso = 'No hay soluciones. Escribe la tuya en el editor o exporta una función en soluciones.js';
+      sistema('warn', aviso, { tipo: 'info' });
+      return '<p class="sol-vacio">⚠️ No hay soluciones. Escribe la tuya en el editor o exporta una función en <code>soluciones.js</code>.</p>';
     }
 
     /* ---------- Filtro: prefijo "solo_" o selección manual ---------- */
@@ -425,46 +463,20 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
         imprimirLogsUsuario(logs, estadoLogs);
       });
 
-      /* ---------- DEMO ---------- */
-      let bloqueDemo = '';
+      /* ---------- DEMO (solo en la terminal; la tarjeta queda para el código) ---------- */
       if (demo && !pendientes) {
         const r = conCaptura(() => demo(fn));
         if (r.error) {
           sistema('error', `Demo falló: ${r.error?.message ?? r.error}`, {
             tipo: 'caso', estado: 'error', icono: ICONOS.error, llamada: 'Demo', resultado: String(r.error?.message ?? r.error),
           });
-          bloqueDemo = `<p class="sol-vacio">💥 Demo falló: ${escapar(r.error?.message ?? r.error)}</p>`;
         } else {
           sistema('log', `★ Demo → ${resumir(r.valor, 90)}`, {
             tipo: 'caso', estado: 'demo', icono: '★', llamada: 'Demo (reto principal)', resultado: resumir(r.valor, 90),
           });
-          bloqueDemo = `
-            <details class="sol-demo">
-              <summary>Ver demo (reto principal)</summary>
-              <pre>${escapar(mostrar(r.valor))}</pre>
-            </details>`;
         }
         imprimirLogsUsuario(r.logs, estadoLogs);
       }
-
-      /* ---------- TABLA HTML ---------- */
-      const filas = resultados
-        .map(
-          ({ caso, estado, texto }) => `
-          <tr class="fila-${estado}">
-            <td class="col-estado">${ICONOS[estado]}</td>
-            <td><code>${escapar(caso.libre ? '(sin argumentos)' : entradaTexto(caso.entrada))}</code></td>
-            <td><code>${escapar(caso.libre ? '—' : mostrar(caso.esperado))}</code></td>
-            <td><code>${escapar(texto)}</code></td>
-          </tr>`
-        )
-        .join('');
-
-      const insignia = esMejor
-        ? '<span class="sol-badge rapida">🏆 más rápida</span>'
-        : esLenta
-          ? `<span class="sol-badge lenta">×${razon.toFixed(1)} más lenta</span>`
-          : '';
 
       const botonSolo =
         filtro !== 'prefijo' && todas.length > 1
@@ -475,7 +487,8 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
 
       const abierta = !colapsadas.includes(nombre);
 
-      const textoCodigo = funcionesFuente.get(nombre) ?? fn.toString();
+      const textoCodigo =
+        fuentesUsuario.get(nombre) ?? funcionesFuente.get(nombre) ?? fn.toString();
       const bloqueCodigo = `
         <details class="sol-codigo" data-nombre="${escapar(nombre)}" ${codigoAbierto.includes(nombre) ? 'open' : ''}>
           <summary>Ver código</summary>
@@ -485,30 +498,15 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
           </div>
         </details>`;
 
+      // La tarjeta solo muestra el código: aciertos, tiempos, tabla y demo van en la terminal
       return `
         <details class="sol-bloque" data-nombre="${escapar(nombre)}" ${abierta ? 'open' : ''}>
           <summary class="sol-header">
             <span class="sol-chevron"></span>
             <h4 class="sol-nombre">${escapar(nombre)}</h4>
-            <div class="sol-meta">
-              ${insignia}
-              <span class="sol-badge ${claseEstado}">${marcador}</span>
-              <span class="sol-tiempo" title="${libre ? 'Tiempo de una ejecución' : 'Promedio de ejecutar todos los casos'}">⏱ ${formatearTiempo(promedio)}</span>
-              ${botonSolo}
-            </div>
+            <div class="sol-meta">${botonSolo}</div>
           </summary>
-          <div class="sol-cuerpo">
-            <div class="sol-tabla-wrap">
-              <table class="sol-tabla">
-                <thead>
-                  <tr><th class="col-estado"></th><th>Entrada</th><th>Esperado</th><th>Obtenido</th></tr>
-                </thead>
-                <tbody>${filas}</tbody>
-              </table>
-            </div>
-            ${bloqueDemo}
-            ${bloqueCodigo}
-          </div>
+          <div class="sol-cuerpo">${bloqueCodigo}</div>
         </details>`;
     });
 

@@ -93,6 +93,25 @@
         </div>
       </div>
 
+      <!-- Resumen de progreso -->
+      <section class="resumen-progreso" id="resumen-progreso" aria-label="Resumen de progreso">
+        <div class="progreso-cabecera">
+          <span class="progreso-titulo">● RESUMEN DE PROGRESO</span>
+          <span class="progreso-total"><strong class="progreso-porcentaje">0%</strong> completado</span>
+        </div>
+        <div
+          class="progreso-barra"
+          role="progressbar"
+          aria-label="Porcentaje de ejercicios completados"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div class="progreso-relleno"></div>
+        </div>
+        <div class="progreso-chips"></div>
+      </section>
+
       <!-- Contenedor Dinámico Principal -->
       <main id="resultado">
         <div class="placeholder-box">
@@ -104,6 +123,7 @@
       <footer class="status-bar">
         <span>Desafíos de lógica en JavaScript</span>
         <div class="status-right">
+          <span class="atajos-status">Atajos: <strong>Ctrl/Cmd + Enter</strong> ejecutar · <strong>Ctrl/Cmd + K</strong> buscar</span>
           <span>Ejercicios: <strong id="total-ejercicios">0</strong></span>
           <span>Ambiente: <strong>Navegador</strong></span>
         </div>

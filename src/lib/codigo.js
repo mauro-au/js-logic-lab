@@ -1,22 +1,7 @@
-import hljs from 'highlight.js/lib/core';
-import javascript from 'highlight.js/lib/languages/javascript';
-
-hljs.registerLanguage('javascript', javascript);
-
-const escapar = (t) =>
-  String(t ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-
-/** Devuelve HTML seguro con el código resaltado. */
-export function resaltar(codigo) {
-  try {
-    return hljs.highlight(String(codigo ?? ''), { language: 'javascript', ignoreIllegals: true }).value;
-  } catch {
-    return escapar(codigo);
-  }
-}
-
 /* ============================================================
-   Extracción del código de cada función exportada
+   Análisis del código fuente: extracción de las funciones
+   exportadas y compilación del código del usuario.
+   Sin dependencias: lo importa también el arranque de la app.
    ============================================================ */
 
 const esComentario = (src, i) => src[i] === '/' && (src[i + 1] === '/' || src[i + 1] === '*');
@@ -144,6 +129,77 @@ function inicioConComentarios(src, inicio) {
     }
   }
   return pos;
+}
+
+/* ============================================================
+   Compilación del código que escribe el usuario en el editor
+   ============================================================ */
+
+// Declaraciones de nivel superior (con o sin "export" / "default")
+const RE_DECLARACION_TOPLEVEL =
+  /^[ \t]*(?:export\s+)?(?:default\s+)?(?:(?:async\s+)?function\s*\*?\s*([\w$]+)|(?:const|let|var)\s+([\w$]+))/gm;
+
+// "export"/"export default" previos a una declaración: se eliminan para poder compilar con new Function
+const RE_EXPORT =
+  /\bexport\s+(?:default\s+)?(?=(?:async\s+)?(?:function|const|let|var|class)\b)/g;
+
+/**
+ * Compila el código del editor del usuario y devuelve sus funciones de
+ * nivel superior como soluciones ejecutables.
+ * - Si el código exporta funciones (`export function ...`), solo esas cuentan.
+ * - Si no exporta nada, todas las funciones declaradas son candidatas.
+ * @returns {{ soluciones: Array<{nombre: string, fn: Function}>, error: string|null, vacio: boolean }}
+ */
+export function compilarCodigoUsuario(fuente) {
+  const src = String(fuente ?? '').replace(/\r\n/g, '\n');
+  if (!src.trim()) return { soluciones: [], error: null, vacio: true };
+
+  const exportadas = extraerSoluciones(src);
+  const nombres = exportadas.size
+    ? [...exportadas.keys()]
+    : [...new Set([...src.matchAll(RE_DECLARACION_TOPLEVEL)].map((m) => m[1] ?? m[2]).filter(Boolean))];
+
+  if (!nombres.length) {
+    return {
+      soluciones: [],
+      error:
+        'No se detectó ninguna función. Escribe tu solución como "function miSolucion() { ... }" o usa "export function ...".',
+      vacio: false,
+    };
+  }
+
+  const cuerpo = src
+    .replace(RE_EXPORT, '')
+    .replace(/^[ \t]*export\s*\{[^}]*\};?[ \t]*$/gm, '')
+    .replace(/\bexport\s+default\s+/g, '');
+
+  let fabrica;
+  try {
+    fabrica = new Function(
+      `${cuerpo}\n;return { ${nombres
+        .map((n) => `${n}: typeof ${n} !== 'undefined' ? ${n} : undefined`)
+        .join(', ')} };`
+    );
+  } catch (e) {
+    return { soluciones: [], error: `Error de sintaxis: ${e?.message ?? e}`, vacio: false };
+  }
+
+  let registro;
+  try {
+    registro = fabrica();
+  } catch (e) {
+    return { soluciones: [], error: `Error al ejecutar tu código: ${e?.message ?? e}`, vacio: false };
+  }
+
+  const soluciones = nombres
+    .filter((n) => typeof registro?.[n] === 'function')
+    .map((n) => ({ nombre: n, fn: registro[n] }));
+
+  if (!soluciones.length) {
+    return { soluciones: [], error: 'El código no definió ninguna función utilizable.', vacio: false };
+  }
+
+  return { soluciones, error: null, vacio: false };
 }
 
 /**

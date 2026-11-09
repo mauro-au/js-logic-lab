@@ -20,16 +20,26 @@ npm run dev
 ## 🧪 Pruebas
 
 ```bash
-npm test        # ejecutor + validación de los 101 ejercicios
+npm test        # ejecutor + editor de usuario + enlaces + validación de los 101 ejercicios
 npm run build   # compilación de producción
 ```
 
 El mismo flujo se ejecuta en GitHub Actions (`.github/workflows/ci.yml`).
 
+## ✨ Funciones del laboratorio
+
+- **Editor "TU CÓDIGO"**: escribe tu solución en cada ejercicio y ejecútala contra los mismos casos que las soluciones de referencia (mismos tests, benchmark y terminal). El código se guarda por ejercicio en tu navegador.
+- **Enlaces profundos**: cada ejercicio tiene una URL propia, por ejemplo `#/mouredev/2022/01-fizzbuzz`, lista para compartir; el botón atrás/adelante del navegador también navega entre ejercicios.
+- **Atajos de teclado**: `Ctrl/Cmd + Enter` ejecuta el ejercicio activo; `Ctrl/Cmd + K` o `/` enfocan el buscador.
+- **Resumen de progreso**: barra global de completados y desglose por dificultad, siempre visible bajo los filtros.
+- **Terminal como fuente única de resultados**: casos, aciertos, tiempos, errores, demo y logs se ven en la terminal; la tarjeta de resultados solo conserva el código de cada solución (plegable, con botón «Copiar») y su pie de estado.
+
 ## 🧭 Cómo funciona
 
 - `src/main.js` obtiene los metadatos del catálogo desde un módulo virtual generado por Vite y descarga cada ejercicio solo al abrirlo.
-- `src/lib/ejecutor.js` compara resultados con igualdad profunda, clona las entradas de cada caso y limita los logs para no saturar la terminal.
+- `src/lib/ejecutor.js` compara resultados con igualdad profunda, clona las entradas de cada caso y limita los logs para no saturar la terminal; el código del editor entra como una solución más.
+- `src/lib/codigo.js` extrae las funciones exportadas y compila el código del usuario (sin dependencias); `src/lib/resaltado.js` se encarga del resaltado de sintaxis.
+- `src/lib/ruta.js` traduce rutas internas a enlaces profundos (`#/origen/año/nn-nombre`) y viceversa.
 
 ## 🙏 Créditos
 

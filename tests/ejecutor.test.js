@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearEjecutor, clonar, sonIguales } from '../src/lib/ejecutor.js';
-import { extraerSoluciones } from '../src/lib/codigo.js';
+import { compilarCodigoUsuario, extraerSoluciones } from '../src/lib/codigo.js';
 
 const NIVELES = ['log', 'info', 'debug', 'warn', 'error'];
 
@@ -80,8 +80,10 @@ test('las soluciones no pueden mutar los casos entre ejecuciones', () => {
     casos,
   });
 
-  assert.match(ejecutarCapturando(ejecutar).salida, /✅/);
-  assert.match(ejecutarCapturando(ejecutar).salida, /✅/);
+  const primera = ejecutarCapturando(ejecutar);
+  const segunda = ejecutarCapturando(ejecutar);
+  assert.ok(primera.registro.some((linea) => linea.texto.includes('✅')));
+  assert.ok(segunda.registro.some((linea) => linea.texto.includes('✅')));
   assert.deepEqual(casos[0].entrada[0], [1, 2, 3]);
 });
 
@@ -91,7 +93,8 @@ test('el resultado se compara por igualdad profunda', () => {
     casos: [{ entrada: [], esperado: { a: 1, b: 2 } }],
   });
 
-  assert.match(ejecutarCapturando(ejecutar).salida, /✅/);
+  const { registro } = ejecutarCapturando(ejecutar);
+  assert.ok(registro.some((linea) => linea.texto.includes('✅')));
 });
 
 test('console.debug también se captura', () => {
@@ -132,17 +135,17 @@ test('avisa de casos inválidos y ejecuta los válidos', () => {
     casos: [{ esperado: 1 }, { entrada: [], esperado: 1 }],
   });
 
-  const { registro, salida } = ejecutarCapturando(ejecutar);
+  const { registro } = ejecutarCapturando(ejecutar);
   assert.ok(registro.some((linea) => linea.texto.includes('inválido')));
-  assert.match(salida, /✅/);
+  assert.ok(registro.some((linea) => linea.texto.includes('✅')));
 });
 
 test('modo libre: ejecuta sin casos y muestra el retorno', () => {
   const ejecutar = crearEjecutor({ soluciones: { saludo: () => 'hola' } });
 
   const { salida, registro } = ejecutarCapturando(ejecutar);
-  assert.match(salida, /hola/);
-  assert.ok(registro.some((linea) => linea.texto.includes('▶')));
+  assert.ok(registro.some((linea) => linea.texto.includes('▶ saludo()')));
+  assert.match(salida, /Ver código/);
 });
 
 test('extraerSoluciones reconoce funciones y constantes exportadas', () => {
@@ -157,4 +160,69 @@ export const resta = (a, b) => a - b;
 
   assert.equal(mapa.get('suma'), '// Suma dos números\nexport function suma(a, b) {\n  return a + b;\n}');
   assert.equal(mapa.get('resta'), 'export const resta = (a, b) => a - b;');
+});
+
+/* ============================================================
+   Código del usuario (editor "TU CÓDIGO")
+   ============================================================ */
+
+const FUENTE_USUARIO = 'export function doble(n) { return n * 2; }';
+
+function comoCodigoUsuario(fuente) {
+  return { fuente, ...compilarCodigoUsuario(fuente) };
+}
+
+test('el código del usuario corre junto a las soluciones del ejercicio', () => {
+  const ejecutar = crearEjecutor({
+    soluciones: { dobleOficial: (n) => n * 2 },
+    casos: [{ entrada: [3], esperado: 6 }],
+  });
+
+  const { salida, registro } = ejecutarCapturando(ejecutar, {
+    codigoUsuario: comoCodigoUsuario(FUENTE_USUARIO),
+  });
+
+  assert.match(salida, /TU CÓDIGO/);
+  assert.match(salida, /dobleOficial/);
+  assert.match(salida, /Ver código/);
+  assert.ok(registro.some((linea) => linea.texto.includes('✅ TU CÓDIGO(3) → 6')));
+  assert.ok(registro.some((linea) => linea.texto.includes('✅ dobleOficial(3) → 6')));
+});
+
+test('si solo hay código de usuario, también se ejecuta', () => {
+  const ejecutar = crearEjecutor({ soluciones: {}, casos: [{ entrada: [4], esperado: 8 }] });
+
+  const { salida, registro } = ejecutarCapturando(ejecutar, {
+    codigoUsuario: comoCodigoUsuario(FUENTE_USUARIO),
+  });
+
+  assert.match(salida, /TU CÓDIGO/);
+  assert.ok(registro.some((linea) => linea.texto.includes('✅ TU CÓDIGO(4) → 8')));
+});
+
+test('la tarjeta de resultados solo deja el código, sin tablas ni demos', () => {
+  const ejecutar = crearEjecutor({
+    soluciones: { doble: (n) => n * 2 },
+    casos: [{ entrada: [2], esperado: 4 }],
+    demo: (fn) => fn(10),
+  });
+
+  const { salida, registro } = ejecutarCapturando(ejecutar);
+
+  assert.match(salida, /sol-bloque/);
+  assert.match(salida, /Ver código/);
+  assert.doesNotMatch(salida, /sol-tabla/); // los casos se ven en la terminal
+  assert.doesNotMatch(salida, /sol-badge/); // aciertos y tiempos también
+  assert.doesNotMatch(salida, /sol-demo/); // la demo solo en la terminal
+  assert.ok(registro.some((linea) => linea.texto.includes('★ Demo → 20')));
+});
+
+test('un error de compilación en el editor se avisa en la terminal', () => {
+  const ejecutar = crearEjecutor({ soluciones: { ok: () => 1 }, casos: [] });
+  const fuente = 'function rota( { return 1 }';
+
+  const { registro } = ejecutarCapturando(ejecutar, { codigoUsuario: comoCodigoUsuario(fuente) });
+
+  assert.ok(registro.some((linea) => linea.texto.includes('Editor:')));
+  assert.match(registro.find((linea) => linea.texto.includes('Editor:')).texto, /sintaxis/i);
 });

@@ -1,5 +1,7 @@
 import './style.css';
 import catalogoMetadatos from 'virtual:catalogo-ejercicios';
+import { compilarCodigoUsuario } from './lib/codigo.js';
+import { hachARuta, rutaAHach } from './lib/ruta.js';
 
 /* ============================================================
    REFERENCIAS DOM
@@ -11,6 +13,7 @@ const selectorEjercicios = document.getElementById('selector-ejercicios');
 const contenedorResultado = document.getElementById('resultado');
 const contadorProgreso = document.getElementById('contador-progreso');
 const totalEjerciciosEl = document.getElementById('total-ejercicios');
+const seccionProgreso = document.getElementById('resumen-progreso');
 
 /* ============================================================
    MÓDULOS
@@ -121,6 +124,10 @@ const PREFIJO_CLAVE = 'jsLogicLab:';
 const CLAVE_COMPLETADOS = `${PREFIJO_CLAVE}retosCompletados`;
 const CLAVE_ACTIVO = `${PREFIJO_CLAVE}ejercicioActivo`;
 const CLAVE_OPCIONES = `${PREFIJO_CLAVE}opcionesEjercicios`;
+const CLAVE_CODIGO = `${PREFIJO_CLAVE}codigo`;
+
+/** Código escrito en el editor, guardado por ejercicio. */
+const claveCodigo = (ruta) => `${CLAVE_CODIGO}:${ruta}`;
 
 const leerTexto = (clave) => {
   try { return localStorage.getItem(clave); } catch { return null; }
@@ -192,6 +199,27 @@ function opcionesDe(ruta) {
 
 const guardarOpciones = () => guardarTexto(CLAVE_OPCIONES, JSON.stringify(opciones));
 
+/* ---------- Código del usuario (editor) ---------- */
+
+function guardarCodigoDe(ruta, texto) {
+  if (!ruta) return;
+  if (texto) guardarTexto(claveCodigo(ruta), texto);
+  else borrarClave(claveCodigo(ruta));
+}
+
+/**
+ * Devuelve el código del editor para un ejercicio.
+ * Si la vista actual corresponde a ese ejercicio, lee del textarea (lo más fresco);
+ * en caso contrario, de lo guardado en localStorage.
+ */
+function leerCodigoDe(ruta) {
+  if (ruta && ruta === rutaRenderizada) {
+    const area = contenedorResultado.querySelector('.editor-codigo');
+    if (area instanceof HTMLTextAreaElement) return area.value;
+  }
+  return leerTexto(claveCodigo(ruta)) ?? '';
+}
+
 /* ============================================================
    ESTADO
    ============================================================ */
@@ -201,6 +229,7 @@ let catalogoPorRuta = new Map();
 let rutaActivaGlobal = '';
 let rutaRenderizada = '';
 let ultimaEjecucion = 0;
+let temporizadorCodigo = 0;
 
 /* ============================================================
    CAPTURA DE CONSOLA (siempre se restaura)
@@ -297,11 +326,57 @@ function mostrarErrorGlobal(titulo, mensaje) {
     </div>`;
 }
 
+function contarCompletados() {
+  let cuenta = 0;
+  for (const ruta of completados) if (catalogoPorRuta.has(ruta)) cuenta++;
+  return cuenta;
+}
+
+const ORDEN_DIFICULTADES = ['FÁCIL', 'MEDIO', 'DIFÍCIL'];
+const ICONO_DIFICULTAD = { 'FÁCIL': '🟢', 'MEDIO': '🟡', 'DIFÍCIL': '🔴' };
+
+/** Tarjeta con el repaso del progreso: barra global y desglose por dificultad. */
+function actualizarResumenProgreso() {
+  if (!seccionProgreso) return;
+
+  const total = catalogo.length;
+  const hechos = contarCompletados();
+  const porcentaje = total ? Math.round((hechos / total) * 100) : 0;
+
+  const cuenta = new Map(ORDEN_DIFICULTADES.map((d) => [d, { ok: 0, total: 0 }]));
+  for (const ejercicio of catalogo) {
+    const registro = cuenta.get(ejercicio.dificultad) ?? { ok: 0, total: 0 };
+    registro.total++;
+    if (completados.has(ejercicio.rutaReal)) registro.ok++;
+    cuenta.set(ejercicio.dificultad, registro);
+  }
+
+  const chips = ORDEN_DIFICULTADES.filter((d) => cuenta.get(d)?.total)
+    .map((dificultad) => {
+      const { ok, total: totalDificultad } = cuenta.get(dificultad);
+      return `<span class="progreso-chip ${normalizar(dificultad).toLowerCase()}">${
+        ICONO_DIFICULTAD[dificultad] ?? '●'
+      } ${escapar(dificultad)} <strong>${ok}/${totalDificultad}</strong></span>`;
+    })
+    .join('');
+
+  const relleno = seccionProgreso.querySelector('.progreso-relleno');
+  const etiqueta = seccionProgreso.querySelector('.progreso-porcentaje');
+  const barra = seccionProgreso.querySelector('.progreso-barra');
+  const contenedorChips = seccionProgreso.querySelector('.progreso-chips');
+
+  if (relleno instanceof HTMLElement) relleno.style.width = `${porcentaje}%`;
+  if (etiqueta) etiqueta.textContent = `${porcentaje}%`;
+  if (barra) barra.setAttribute('aria-valuenow', String(porcentaje));
+  if (contenedorChips instanceof HTMLElement) contenedorChips.innerHTML = chips;
+}
+
 function actualizarContadorInterfaz() {
   const total = catalogo.length;
-  const validos = [...completados].filter((r) => catalogoPorRuta.has(r)).length;
+  const validos = contarCompletados();
   contadorProgreso.innerHTML = `<span class="dot-green">●</span> Completados: <strong>${validos}/${total}</strong>`;
   if (totalEjerciciosEl) totalEjerciciosEl.textContent = String(total);
+  actualizarResumenProgreso();
 }
 
 function poblarCategorias() {
@@ -429,7 +504,7 @@ function resumirEjecucion(registro, error) {
   };
 }
 
-function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo }) {
+function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo, editor }) {
   const resuelto = completados.has(ejercicio.rutaReal);
   const numero = modulo.numero ?? ejercicio.numeroCarpeta;
   const resumen = resumirEjecucion(registro, error);
@@ -439,6 +514,14 @@ function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo
   const cuerpoSalida = error
     ? `<div class="error-box"><h3>EXECUTION ERROR</h3><code>${escapar(error?.message ?? error)}</code></div>`
     : salidaHTML;
+
+  const estadoEditor = editor.error
+    ? `<span class="editor-estado-error">⚠️ ${escapar(editor.error)}</span>`
+    : editor.vacio
+      ? '<span class="editor-estado-vacio">Escribe una función para probarla contra los casos</span>'
+      : `<span class="editor-estado-ok">✓ ${editor.funciones} ${
+          editor.funciones === 1 ? 'función detectada' : 'funciones detectadas'
+        } · guardado en este navegador</span>`;
 
   return `
     <div class="workspace-grid">
@@ -457,6 +540,30 @@ function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo
           <div class="card-footer-tags">
             <span>● Dificultad: <strong class="diff-style">${escapar(ejercicio.dificultad)}</strong></span>
             <span class="tags-style">Tags: ${escapar(formatearTags(modulo.tags))}</span>
+          </div>
+        </div>
+
+        <div class="card-bloque card-editor">
+          <div class="card-header-internal">
+            <h2 class="title-editor">● TU CÓDIGO</h2>
+            <div class="header-actions-right">
+              <button type="button" data-accion="limpiar-editor" class="btn-solved-header">Limpiar</button>
+              <span class="badge-dom">Editor local</span>
+            </div>
+          </div>
+          <label class="sr-only" for="editor-codigo">Escribe tu solución para este ejercicio</label>
+          <textarea
+            id="editor-codigo"
+            class="editor-codigo"
+            rows="9"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            placeholder="// Escribe aquí tu solución, por ejemplo:&#10;// function miSolucion(n) { ... }&#10;//&#10;// Se compila y se ejecuta contra los mismos casos que el resto."
+          >${escapar(editor.fuente)}</textarea>
+          <div class="editor-pie">
+            ${estadoEditor}
+            <span class="editor-atajo">Ctrl/Cmd + Enter → ejecutar</span>
           </div>
         </div>
 
@@ -537,6 +644,9 @@ async function ejecutarEjercicio(ruta) {
 
   const registro = [];
   const opcionesEjercicio = opcionesDe(ruta);
+  const fuenteUsuario = leerCodigoDe(ruta);
+  const codigoUsuario = compilarCodigoUsuario(fuenteUsuario);
+  if (fuenteUsuario !== (leerTexto(claveCodigo(ruta)) ?? '')) guardarCodigoDe(ruta, fuenteUsuario);
   let salida;
   let error = null;
   let tiempo = '0.00';
@@ -551,6 +661,11 @@ async function ejecutarEjercicio(ruta) {
       colapsadas: opcionesEjercicio.colapsadas,
       codigoAbierto: opcionesEjercicio.codigoAbierto,
       codigo,
+      codigoUsuario: {
+        fuente: fuenteUsuario,
+        soluciones: codigoUsuario.soluciones,
+        error: codigoUsuario.error,
+      },
     });
   } catch (e) {
     error = e;
@@ -577,6 +692,12 @@ async function ejecutarEjercicio(ruta) {
           solucion: elementoActivo.dataset.solucion ?? null,
         }
       : null;
+  const cursorEditor =
+    mismoEjercicio &&
+    elementoActivo instanceof HTMLTextAreaElement &&
+    elementoActivo.classList.contains('editor-codigo')
+      ? { inicio: elementoActivo.selectionStart, fin: elementoActivo.selectionEnd }
+      : null;
 
   contenedorResultado.innerHTML = construirVista({
     ejercicio,
@@ -585,12 +706,26 @@ async function ejecutarEjercicio(ruta) {
     error,
     registro,
     tiempo,
+    editor: {
+      fuente: fuenteUsuario,
+      error: codigoUsuario.error,
+      vacio: codigoUsuario.vacio,
+      funciones: codigoUsuario.soluciones.length,
+    },
   });
 
   rutaRenderizada = ruta;
   if (mismoEjercicio) window.scrollTo(0, scrollY);
 
-  if (focoPrevio) {
+  if (cursorEditor) {
+    const area = contenedorResultado.querySelector('.editor-codigo');
+    if (area instanceof HTMLTextAreaElement) {
+      area.focus({ preventScroll: true });
+      try {
+        area.setSelectionRange(cursorEditor.inicio, cursorEditor.fin);
+      } catch { /* selección no soportada */ }
+    }
+  } else if (focoPrevio) {
     const destino = [...contenedorResultado.querySelectorAll('[data-accion]')].find(
       (elemento) =>
         elemento.dataset.accion === focoPrevio.accion &&
@@ -622,6 +757,108 @@ function toggleRetoCompletado(ruta) {
 }
 
 /* ============================================================
+   NAVEGACIÓN: selección de ejercicio y enlaces profundos (#/...)
+   ============================================================ */
+
+/** Quita los filtros que dejarían fuera el ejercicio elegido. */
+function asegurarVisible(ejercicio) {
+  if (selectorCategoria.value !== 'TODOS' && selectorCategoria.value !== ejercicio.categoria) {
+    selectorCategoria.value = ejercicio.categoria;
+  }
+  if (
+    selectorDificultad.value !== 'TODOS' &&
+    normalizar(selectorDificultad.value) !== ejercicio.dificultadClave
+  ) {
+    selectorDificultad.value = 'TODOS';
+  }
+  if (!ejercicio.textoBusqueda.includes(normalizar(buscador.value))) buscador.value = '';
+}
+
+/** Refleja la ruta activa en la barra de direcciones como #/origen/año/nn-nombre. */
+function sincronizarHash(ruta, modo = 'empujar') {
+  const hach = rutaAHach(ruta);
+  if ((location.hash || '') === hach) return;
+  const url = `${location.pathname}${location.search}${hach}`;
+  try {
+    if (modo === 'reemplazar') history.replaceState(null, '', url);
+    else history.pushState(null, '', url);
+  } catch { /* sin historial disponible */ }
+}
+
+/** Selecciona, guarda y ejecuta un ejercicio, manteniendo el hash al día. */
+function seleccionarEjercicio(ruta, { empujar = true } = {}) {
+  if (!catalogoPorRuta.has(ruta)) return false;
+
+  asegurarVisible(catalogoPorRuta.get(ruta));
+  rutaActivaGlobal = ruta;
+  guardarTexto(CLAVE_ACTIVO, ruta);
+  actualizarListaEjercicios();
+  ejecutarEjercicio(ruta);
+  sincronizarHash(ruta, empujar ? 'empujar' : 'reemplazar');
+  return true;
+}
+
+// Navegación con el botón atrás/adelante del navegador
+window.addEventListener(
+  'hashchange',
+  () => {
+    const ruta = hachARuta(location.hash);
+    if (!ruta) {
+      // Hash vacío o inválido: devolvemos la vista al ejercicio activo
+      if (rutaActivaGlobal) sincronizarHash(rutaActivaGlobal, 'reemplazar');
+      return;
+    }
+    if (ruta === rutaActivaGlobal) return;
+    if (!seleccionarEjercicio(ruta, { empujar: false })) {
+      sincronizarHash(rutaActivaGlobal, 'reemplazar');
+    }
+  },
+  { signal }
+);
+
+/* ============================================================
+   ATAJOS DE TECLADO
+   ============================================================ */
+const esEditable = (elemento) =>
+  elemento instanceof HTMLElement &&
+  (elemento.isContentEditable ||
+    ['INPUT', 'TEXTAREA', 'SELECT'].includes(elemento.tagName));
+
+document.addEventListener(
+  'keydown',
+  (evento) => {
+    const combinado = evento.ctrlKey || evento.metaKey;
+
+    // Ctrl/Cmd + Enter → ejecutar el ejercicio activo
+    if (combinado && evento.key === 'Enter') {
+      if (!rutaActivaGlobal) return;
+      evento.preventDefault();
+      clearTimeout(temporizadorCodigo);
+      const area = contenedorResultado.querySelector('.editor-codigo');
+      if (area instanceof HTMLTextAreaElement) guardarCodigoDe(rutaActivaGlobal, area.value);
+      ejecutarEjercicio(rutaActivaGlobal);
+      return;
+    }
+
+    // Ctrl/Cmd + K → enfocar el buscador
+    if (combinado && evento.key.toLowerCase() === 'k') {
+      evento.preventDefault();
+      buscador.focus();
+      buscador.select();
+      return;
+    }
+
+    // "/" → enfocar el buscador (salvo que se esté escribiendo en algún campo)
+    if (evento.key === '/' && !combinado && !evento.altKey && !esEditable(evento.target)) {
+      evento.preventDefault();
+      buscador.focus();
+      buscador.select();
+    }
+  },
+  { signal }
+);
+
+/* ============================================================
    EVENTOS (delegación; se limpian solos con el AbortController)
    ============================================================ */
 contenedorResultado.addEventListener(
@@ -635,6 +872,15 @@ contenedorResultado.addEventListener(
     if (accion === 'completar') toggleRetoCompletado(rutaActivaGlobal);
     if (accion === 'ejecutar') ejecutarEjercicio(rutaActivaGlobal);
     if (accion === 'copiar') copiarCodigo(boton);
+
+    if (accion === 'limpiar-editor') {
+      const area = contenedorResultado.querySelector('.editor-codigo');
+      if (!(area instanceof HTMLTextAreaElement) || !area.value) return;
+      if (!window.confirm('¿Borrar el código guardado de este ejercicio?')) return;
+      area.value = '';
+      guardarCodigoDe(rutaActivaGlobal, '');
+      ejecutarEjercicio(rutaActivaGlobal);
+    }
 
     if (accion === 'solo') {
       evento.preventDefault(); // el botón vive dentro de <summary>: no plegar el bloque
@@ -679,6 +925,20 @@ selectorCategoria.addEventListener('change', actualizarListaEjercicios, { signal
 selectorDificultad.addEventListener('change', actualizarListaEjercicios, { signal });
 buscador.addEventListener('input', actualizarListaEjercicios, { signal });
 
+// Guarda lo que escribes en el editor (con una pequeña pausa)
+contenedorResultado.addEventListener(
+  'input',
+  (evento) => {
+    const area = evento.target;
+    if (!(area instanceof HTMLTextAreaElement) || !area.classList.contains('editor-codigo')) return;
+    const ruta = rutaActivaGlobal;
+    if (!ruta) return;
+    clearTimeout(temporizadorCodigo);
+    temporizadorCodigo = setTimeout(() => guardarCodigoDe(ruta, area.value), 300);
+  },
+  { signal }
+);
+
 selectorEjercicios.addEventListener(
   'change',
   (evento) => {
@@ -687,11 +947,10 @@ selectorEjercicios.addEventListener(
       borrarClave(CLAVE_ACTIVO);
       rutaActivaGlobal = '';
       restaurarVistaVacia();
+      sincronizarHash('');
       return;
     }
-    rutaActivaGlobal = ruta;
-    guardarTexto(CLAVE_ACTIVO, ruta);
-    ejecutarEjercicio(ruta);
+    seleccionarEjercicio(ruta);
   },
   { signal }
 );
@@ -708,17 +967,20 @@ function inicializarLaboratorio() {
   actualizarContadorInterfaz();
   actualizarListaEjercicios();
 
-  const guardado = migrarRuta(leerTexto(CLAVE_ACTIVO));
-  const ejercicio = catalogoPorRuta.get(guardado);
+  // Prioridad: enlace profundo (#/origen/año/nn-nombre) > último ejercicio guardado
+  const rutaDesdeHach = hachARuta(location.hash);
+  const rutaGuardada = migrarRuta(leerTexto(CLAVE_ACTIVO));
+  const rutaInicial = catalogoPorRuta.has(rutaDesdeHach)
+    ? rutaDesdeHach
+    : catalogoPorRuta.has(rutaGuardada)
+      ? rutaGuardada
+      : '';
 
-  if (ejercicio) {
-    selectorCategoria.value = ejercicio.categoria;
-    rutaActivaGlobal = guardado;
-    guardarTexto(CLAVE_ACTIVO, guardado);
-    actualizarListaEjercicios();
-    ejecutarEjercicio(guardado);
+  if (rutaInicial) {
+    seleccionarEjercicio(rutaInicial, { empujar: false });
   } else {
     restaurarVistaVacia();
+    if (location.hash) sincronizarHash('', 'reemplazar'); // hash que no corresponde a ningún ejercicio
   }
 }
 
@@ -737,6 +999,12 @@ if (import.meta.hot) {
   import.meta.hot.accept();
   import.meta.hot.dispose(() => {
     controlador.abort(); // quita todos los listeners de esta versión
+    clearTimeout(temporizadorCodigo);
+    // Guarda lo que quedó pendiente de escribir en el editor
+    const area = document.querySelector('.editor-codigo');
+    if (area instanceof HTMLTextAreaElement && rutaActivaGlobal) {
+      guardarCodigoDe(rutaActivaGlobal, area.value);
+    }
     ultimaEjecucion++;
     cacheEjercicios.clear();
     cacheCodigo.clear();
