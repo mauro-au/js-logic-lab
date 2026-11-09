@@ -47,6 +47,8 @@ function catalogoEjercicios() {
           dificultad: modulo.dificultad ?? null,
           tags: Array.isArray(modulo.tags) ? modulo.tags : [],
           enunciado: modulo.enunciado ?? '',
+          // ¿Ya viene resuelto de fábrica? Se ejecuta en silencio al arrancar
+          autoResuelto: modulo.autoResuelto === true,
         };
       })
     );

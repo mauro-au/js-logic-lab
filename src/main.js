@@ -1,7 +1,7 @@
 import './style.css';
 import catalogoMetadatos from 'virtual:catalogo-ejercicios';
 import { compilarCodigoUsuario } from './lib/codigo.js';
-import { codigoResuelto } from './lib/progreso.js';
+import { codigoResuelto, estadoAutoMarca, huellaCodigo } from './lib/progreso.js';
 import { hachARuta, rutaAHach } from './lib/ruta.js';
 
 /* ============================================================
@@ -126,6 +126,7 @@ const CLAVE_COMPLETADOS = `${PREFIJO_CLAVE}retosCompletados`;
 const CLAVE_ACTIVO = `${PREFIJO_CLAVE}ejercicioActivo`;
 const CLAVE_OPCIONES = `${PREFIJO_CLAVE}opcionesEjercicios`;
 const CLAVE_CODIGO = `${PREFIJO_CLAVE}codigo`;
+const CLAVE_DESMARCADOS = `${PREFIJO_CLAVE}desmarcadosAuto`;
 
 /** Código escrito en el editor, guardado por ejercicio. */
 const claveCodigo = (ruta) => `${CLAVE_CODIGO}:${ruta}`;
@@ -172,6 +173,39 @@ function cargarCompletados() {
   } catch {
     return new Set();
   }
+}
+
+/**
+ * Desmarcas hechas a mano: { [ruta]: huellaDelCodigo }.
+ * Mientras la huella no cambie, el marcaje automático no la repone.
+ * Huella `null` = pendiente de calcular (la desmarca acaba de ocurrir).
+ */
+function cargarDesmarcados() {
+  try {
+    const datos = JSON.parse(leerTexto(CLAVE_DESMARCADOS));
+    if (!datos || typeof datos !== 'object' || Array.isArray(datos)) return {};
+    return Object.fromEntries(
+      Object.entries(datos).filter(
+        ([ruta, huella]) =>
+          typeof ruta === 'string' && (huella === null || typeof huella === 'string')
+      )
+    );
+  } catch {
+    return {};
+  }
+}
+
+const desmarcadosAuto = cargarDesmarcados();
+
+function guardarDesmarcados() {
+  guardarTexto(CLAVE_DESMARCADOS, JSON.stringify(desmarcadosAuto));
+}
+
+/** Huella del código actual de un ejercicio (editor + soluciones.js). */
+async function huellaDeCodigo(ruta) {
+  const editor = leerCodigoDe(ruta) ?? '';
+  const soluciones = await cargarCodigo(ruta).catch(() => '');
+  return huellaCodigo(`${editor} ${soluciones}`);
 }
 
 // Opciones por ejercicio: { [ruta]: { solo: string|null, colapsadas: string[] } }
@@ -231,6 +265,8 @@ let rutaActivaGlobal = '';
 let rutaRenderizada = '';
 let ultimaEjecucion = 0;
 let temporizadorCodigo = 0;
+/** Precarga de arranque (ejercicios que ya vienen resueltos); nunca rechaza. */
+let precargaPendiente = Promise.resolve();
 
 /* ============================================================
    CAPTURA DE CONSOLA (siempre se restaura)
@@ -281,7 +317,7 @@ function construirCatalogo() {
 
   return catalogoMetadatos
     .filter(({ ruta }) => typeof cargadoresEjercicios[ruta] === 'function')
-    .map(({ ruta, numero, dificultad: dificultadCruda, tags, enunciado }) => {
+    .map(({ ruta, numero, dificultad: dificultadCruda, tags, enunciado, autoResuelto }) => {
       const segmentos = ruta
         .replace('./exercises/', '')
         .replace(/\/index\.js$/, '')
@@ -293,6 +329,7 @@ function construirCatalogo() {
 
       return {
         rutaReal: ruta,
+        autoResuelto: autoResuelto === true,
         categoria: categoria.toUpperCase(),
         dificultad,
         dificultadClave: normalizar(dificultad),
@@ -620,6 +657,10 @@ async function ejecutarEjercicio(ruta) {
 
   const idEjecucion = ++ultimaEjecucion;
 
+  // La precarga de arranque captura consola: esperamos para no mezclarlas
+  await precargaPendiente;
+  if (idEjecucion !== ultimaEjecucion) return;
+
   let modulo;
   let codigo = '';
   try {
@@ -677,8 +718,8 @@ async function ejecutarEjercicio(ruta) {
 
   if (idEjecucion !== ultimaEjecucion) return;
 
-  // Si el código propio pasó los casos, el ejercicio queda resuelto solo.
-  if (codigoResuelto(registro, modulo.solucionesReferencia)) marcarResuelto(ruta);
+  // Si pasa alguna solución (la tuya o la de fábrica), el ejercicio queda resuelto solo.
+  if (codigoResuelto(registro)) marcarResuelto(ruta, huellaCodigo(`${fuenteUsuario} ${codigo}`));
 
   const salidaHTML =
     salida === undefined || salida === null
@@ -758,14 +799,42 @@ function guardarCompletados() {
 }
 
 function toggleRetoCompletado(ruta) {
-  if (completados.has(ruta)) completados.delete(ruta);
-  else completados.add(ruta);
+  if (completados.has(ruta)) {
+    // Desmarca manual: el automático no la repone hasta que cambie el código
+    completados.delete(ruta);
+    pausarAutoMarca(ruta);
+  } else {
+    completados.add(ruta);
+    delete desmarcadosAuto[ruta];
+    guardarDesmarcados();
+  }
   guardarCompletados();
 }
 
-/** Marca resuelto solo si aún no lo estaba (usado por el auto-marcaje). */
-function marcarResuelto(ruta) {
+/** Registra la desmarca manual y calcula la huella del código en ese momento. */
+function pausarAutoMarca(ruta) {
+  if (!ruta) return;
+  desmarcadosAuto[ruta] = null; // pendiente: bloquea ya mismo
+  guardarDesmarcados();
+  huellaDeCodigo(ruta).then((huella) => {
+    if (desmarcadosAuto[ruta] === null) {
+      desmarcadosAuto[ruta] = huella;
+      guardarDesmarcados();
+    }
+  });
+}
+
+/** Marca resuelto solo si aún no lo estaba y no hay una desmarca manual vigente. */
+function marcarResuelto(ruta, huella = '') {
   if (!ruta || completados.has(ruta)) return false;
+
+  const decision = estadoAutoMarca(desmarcadosAuto, ruta, huella);
+  if (decision === 'bloquear') return false; // desmarca manual aún vigente
+  if (decision === 'reanudar') {
+    delete desmarcadosAuto[ruta]; // el código cambió: se reanuda el auto-marcaje
+    guardarDesmarcados();
+  }
+
   completados.add(ruta);
   guardarCompletados();
   return true;
@@ -971,6 +1040,58 @@ selectorEjercicios.addEventListener(
 );
 
 /* ============================================================
+   PRECARGA DE ARRANQUE
+   Los ejercicios con `autoResuelto = true` (vienen resueltos de
+   fábrica) se ejecutan en silencio al iniciar para que aparezcan
+   como resueltos desde el primer momento, en cualquier navegador.
+   ============================================================ */
+async function precargarResueltos() {
+  const pendientes = catalogo.filter((e) => e.autoResuelto && !completados.has(e.rutaReal));
+
+  for (const { rutaReal } of pendientes) {
+    try {
+      const modulo = await cargarEjercicio(rutaReal);
+      if (!modulo || typeof modulo.ejecutar !== 'function') continue;
+
+      // Captura muda: ni terminal ni devtools, solo el registro en memoria
+      const registro = [];
+      const silencio = Object.fromEntries(
+        Object.keys(consolaOriginal).map((nivel) => [
+          nivel,
+          (...args) => {
+            if (registro.length < MAX_ENTRADAS_TERMINAL) {
+              registro.push({
+                nivel,
+                origen: 'sistema',
+                meta: globalThis.__metaLog ?? null,
+                texto: args.map(formatearArgumento).join(' '),
+              });
+            }
+          },
+        ])
+      );
+
+      Object.assign(console, silencio);
+      try {
+        await modulo.ejecutar({
+          solo: null,
+          colapsadas: [],
+          codigoAbierto: [],
+          codigo: '',
+          codigoUsuario: { fuente: '', soluciones: [], error: null },
+        });
+      } finally {
+        restaurarConsola();
+      }
+
+      if (codigoResuelto(registro)) marcarResuelto(rutaReal, await huellaDeCodigo(rutaReal));
+    } catch {
+      /* una precarga fallida nunca debe frenar el arranque */
+    }
+  }
+}
+
+/* ============================================================
    INICIO
    ============================================================ */
 function inicializarLaboratorio() {
@@ -981,6 +1102,9 @@ function inicializarLaboratorio() {
   poblarCategorias();
   actualizarContadorInterfaz();
   actualizarListaEjercicios();
+
+  // Los que ya vienen resueltos se marcan sin esperar a que se abran
+  precargaPendiente = precargarResueltos().catch(() => {});
 
   // Prioridad: enlace profundo (#/origen/año/nn-nombre) > último ejercicio guardado
   const rutaDesdeHach = hachARuta(location.hash);

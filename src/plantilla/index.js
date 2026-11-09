@@ -7,9 +7,9 @@ export const tags = ['tag1', 'tag2'];
 
 export const enunciado = `Describe aquí el ejercicio.`;
 
-// Opcional: soluciones de fábrica (las que vienen en soluciones.js). Si pasan
-// los casos no marcan el ejercicio como resuelto; sí lo hace tu código del editor.
-// export const solucionesReferencia = ['solucion1'];
+// Opcional: marca el ejercicio como resuelto desde el arranque, sin necesidad
+// de abrirlo, porque ya trae una solución que pasa los casos (autoResuelto = true).
+// export const autoResuelto = true;
 
 const casos = [
   { entrada: [1], esperado: 1 }, // entrada = lista de argumentos

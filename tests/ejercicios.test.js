@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { codigoResuelto } from '../src/lib/progreso.js';
 
 const RAIZ = process.cwd();
 const DIR_EJERCICIOS = join(RAIZ, 'src', 'exercises');
@@ -79,23 +80,8 @@ test('los 101 ejercicios cargan, tienen metadatos válidos y se ejecutan', async
         problemas.push(`${nombre}: enunciado vacío`);
       }
 
-      if (modulo.solucionesReferencia !== undefined) {
-        const referencias = modulo.solucionesReferencia;
-        if (
-          !Array.isArray(referencias) ||
-          referencias.some((n) => typeof n !== 'string' || !n.trim())
-        ) {
-          problemas.push(`${nombre}: "solucionesReferencia" debe ser una lista de nombres`);
-        } else {
-          const solucionesModulo = await import(pathToFileURL(join(dir, 'soluciones.js')).href);
-          for (const nombrePropio of referencias) {
-            if (typeof solucionesModulo[nombrePropio] !== 'function') {
-              problemas.push(
-                `${nombre}: solucionesReferencia "${nombrePropio}" no existe en soluciones.js`
-              );
-            }
-          }
-        }
+      if (modulo.autoResuelto !== undefined && typeof modulo.autoResuelto !== 'boolean') {
+        problemas.push(`${nombre}: "autoResuelto" debe ser true o false`);
       }
 
       if (typeof modulo.ejecutar !== 'function') {
@@ -112,5 +98,42 @@ test('los 101 ejercicios cargan, tienen metadatos válidos y se ejecutan', async
     }
   }
 
+  assert.deepEqual(problemas, []);
+});
+
+test('los ejercicios con autoResuelto pasan sus casos sin código del usuario', async () => {
+  const directorios = [...recorrer(DIR_EJERCICIOS)];
+  const problemas = [];
+  let marcados = 0;
+
+  for (const dir of directorios) {
+    const nombre = basename(dir);
+    const modulo = await import(pathToFileURL(join(dir, 'index.js')).href);
+    if (modulo.autoResuelto !== true) continue;
+    marcados++;
+
+    const registro = [];
+    const originales = {};
+    for (const nivel of NIVELES) {
+      originales[nivel] = console[nivel];
+      console[nivel] = (...args) => {
+        registro.push({ nivel, meta: globalThis.__metaLog ?? null, texto: args.join(' ') });
+      };
+    }
+
+    try {
+      modulo.ejecutar({ codigo: '' });
+    } catch (error) {
+      problemas.push(`${nombre}: autoResuelto pero lanza ${error?.message ?? error}`);
+    } finally {
+      Object.assign(console, originales);
+    }
+
+    if (!codigoResuelto(registro)) {
+      problemas.push(`${nombre}: autoResuelto pero ninguna solución pasa los casos`);
+    }
+  }
+
+  assert.ok(marcados >= 2, 'debería haber al menos 2 ejercicios autoResueltos');
   assert.deepEqual(problemas, []);
 });
