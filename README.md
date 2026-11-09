@@ -32,6 +32,7 @@ El mismo flujo se ejecuta en GitHub Actions (`.github/workflows/ci.yml`).
 - **Enlaces profundos**: cada ejercicio tiene una URL propia, por ejemplo `#/mouredev/2022/01-fizzbuzz`, lista para compartir; el botón atrás/adelante del navegador también navega entre ejercicios.
 - **Atajos de teclado**: `Ctrl/Cmd + Enter` ejecuta el ejercicio activo; `Ctrl/Cmd + K` o `/` enfocan el buscador.
 - **Resumen de progreso**: barra global de completados y desglose por dificultad, siempre visible bajo los filtros.
+- **Resuelto automático**: cuando el código tuyo (el editor o una función que agregues en `soluciones.js`) pasa todos los casos, el ejercicio se marca solo como resuelto. Las soluciones de fábrica declaradas en `solucionesReferencia` no lo hacen; una vez marcado, solo lo desmarca el botón «✓ Completado».
 - **Terminal como fuente única de resultados**: casos, aciertos, tiempos, errores, demo y logs se ven en la terminal; la tarjeta de resultados solo conserva el código de cada solución (plegable, con botón «Copiar») y su pie de estado.
 
 ## 🧭 Cómo funciona

@@ -1,10 +1,9 @@
-import { extraerSoluciones } from './codigo.js';
+import { extraerSoluciones, NOMBRE_USUARIO } from './codigo.js';
 import { resaltar } from './resaltado.js';
 
 const ICONOS = { ok: '✅', fallo: '❌', error: '💥', pendiente: '⏳', libre: '▶' };
 const NIVELES = ['log', 'info', 'debug', 'warn', 'error'];
 const PREFIJO_SOLO = 'solo_';
-const NOMBRE_USUARIO = 'TU CÓDIGO';
 const MAX_LOG_TEXTO = 400;
 const MAX_LOGS_CAPTURA = 500;
 const MAX_LOGS_MOSTRADOS = 500;

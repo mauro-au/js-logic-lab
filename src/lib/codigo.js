@@ -135,6 +135,9 @@ function inicioConComentarios(src, inicio) {
    Compilación del código que escribe el usuario en el editor
    ============================================================ */
 
+/** Nombre con el que aparece el código del usuario en la terminal y en la tarjeta. */
+export const NOMBRE_USUARIO = 'TU CÓDIGO';
+
 // Declaraciones de nivel superior (con o sin "export" / "default")
 const RE_DECLARACION_TOPLEVEL =
   /^[ \t]*(?:export\s+)?(?:default\s+)?(?:(?:async\s+)?function\s*\*?\s*([\w$]+)|(?:const|let|var)\s+([\w$]+))/gm;

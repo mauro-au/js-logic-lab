@@ -79,6 +79,25 @@ test('los 101 ejercicios cargan, tienen metadatos válidos y se ejecutan', async
         problemas.push(`${nombre}: enunciado vacío`);
       }
 
+      if (modulo.solucionesReferencia !== undefined) {
+        const referencias = modulo.solucionesReferencia;
+        if (
+          !Array.isArray(referencias) ||
+          referencias.some((n) => typeof n !== 'string' || !n.trim())
+        ) {
+          problemas.push(`${nombre}: "solucionesReferencia" debe ser una lista de nombres`);
+        } else {
+          const solucionesModulo = await import(pathToFileURL(join(dir, 'soluciones.js')).href);
+          for (const nombrePropio of referencias) {
+            if (typeof solucionesModulo[nombrePropio] !== 'function') {
+              problemas.push(
+                `${nombre}: solucionesReferencia "${nombrePropio}" no existe en soluciones.js`
+              );
+            }
+          }
+        }
+      }
+
       if (typeof modulo.ejecutar !== 'function') {
         problemas.push(`${nombre}: no exporta ejecutar()`);
         continue;

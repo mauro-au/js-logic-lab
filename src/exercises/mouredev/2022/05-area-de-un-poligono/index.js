@@ -5,6 +5,9 @@ export const numero = '05';
 export const dificultad = 'Fácil';
 export const tags = ['matemáticas', 'funciones', 'objetos'];
 
+// Soluciones de referencia de fábrica: no marcan el ejercicio como resuelto
+export const solucionesReferencia = ['areaConSwitch'];
+
 export const enunciado = `Crea una única función (importante que sólo sea una) que sea capaz de calcular y retornar el área de un polígono.
 - La función recibirá por parámetro sólo UN polígono a la vez.
 - Los polígonos soportados serán Triángulo, Cuadrado y Rectángulo.

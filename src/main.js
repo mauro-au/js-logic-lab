@@ -1,6 +1,7 @@
 import './style.css';
 import catalogoMetadatos from 'virtual:catalogo-ejercicios';
 import { compilarCodigoUsuario } from './lib/codigo.js';
+import { codigoResuelto } from './lib/progreso.js';
 import { hachARuta, rutaAHach } from './lib/ruta.js';
 
 /* ============================================================
@@ -676,6 +677,9 @@ async function ejecutarEjercicio(ruta) {
 
   if (idEjecucion !== ultimaEjecucion) return;
 
+  // Si el código propio pasó los casos, el ejercicio queda resuelto solo.
+  if (codigoResuelto(registro, modulo.solucionesReferencia)) marcarResuelto(ruta);
+
   const salidaHTML =
     salida === undefined || salida === null
       ? 'El ejercicio no retornó ningún texto específico.'
@@ -746,14 +750,25 @@ async function copiarCodigo(boton) {
   setTimeout(() => { boton.textContent = 'Copiar'; }, 1500);
 }
 
-function toggleRetoCompletado(ruta) {
-  if (completados.has(ruta)) completados.delete(ruta);
-  else completados.add(ruta);
-
+function guardarCompletados() {
   guardarTexto(CLAVE_COMPLETADOS, JSON.stringify([...completados]));
   actualizarContadorInterfaz();
   actualizarListaEjercicios();
   actualizarBotonCompletado();
+}
+
+function toggleRetoCompletado(ruta) {
+  if (completados.has(ruta)) completados.delete(ruta);
+  else completados.add(ruta);
+  guardarCompletados();
+}
+
+/** Marca resuelto solo si aún no lo estaba (usado por el auto-marcaje). */
+function marcarResuelto(ruta) {
+  if (!ruta || completados.has(ruta)) return false;
+  completados.add(ruta);
+  guardarCompletados();
+  return true;
 }
 
 /* ============================================================
