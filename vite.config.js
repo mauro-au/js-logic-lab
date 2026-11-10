@@ -3,6 +3,7 @@ import { readdir } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { defineConfig } from 'vite';
+import { evaluarResuelto } from './src/lib/evaluar-resuelto.js';
 
 const pkg = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf8')
@@ -37,21 +38,34 @@ function catalogoEjercicios() {
     const archivos = await listarIndex(DIR_EJERCICIOS);
     const sello = Date.now();
 
-    return Promise.all(
+    const entradas = await Promise.all(
       archivos.map(async (archivo) => {
         // El sello evita reutilizar el módulo cacheado tras editar un index.js.
         const modulo = await import(`${pathToFileURL(archivo).href}?v=${sello}`);
         return {
-          ruta: `./${relative(DIR_SRC, archivo).split(sep).join('/')}`,
-          numero: modulo.numero ?? null,
-          dificultad: modulo.dificultad ?? null,
-          tags: Array.isArray(modulo.tags) ? modulo.tags : [],
-          enunciado: modulo.enunciado ?? '',
-          // ¿Ya viene resuelto de fábrica? Se ejecuta en silencio al arrancar
-          autoResuelto: modulo.autoResuelto === true,
+          modulo,
+          metadatos: {
+            ruta: `./${relative(DIR_SRC, archivo).split(sep).join('/')}`,
+            numero: modulo.numero ?? null,
+            dificultad: modulo.dificultad ?? null,
+            tags: Array.isArray(modulo.tags) ? modulo.tags : [],
+            enunciado: modulo.enunciado ?? '',
+          },
         };
       })
     );
+
+    // Secuencial: evaluarResuelto silencia la consola global
+    const catalogo = [];
+    for (const { modulo, metadatos } of entradas) {
+      catalogo.push({
+        ...metadatos,
+        // ¿Las soluciones de fábrica pasan sus casos? Se decide aquí,
+        // al compilar, para que el navegador solo lea la respuesta.
+        resuelto: await evaluarResuelto(modulo.ejecutar),
+      });
+    }
+    return catalogo;
   }
 
   return {
@@ -66,7 +80,9 @@ function catalogoEjercicios() {
     },
     configureServer(servidor) {
       const recargar = (archivo) => {
-        if (!archivo.startsWith(DIR_EJERCICIOS) || !archivo.endsWith('index.js')) return;
+        if (!archivo.startsWith(DIR_EJERCICIOS)) return;
+        // index.js cambia los metadatos; soluciones.js, si sigue pasando
+        if (!archivo.endsWith('index.js') && !archivo.endsWith('soluciones.js')) return;
         const modulo = servidor.moduleGraph.getModuleById(ID_CATALOGO_RESUELTO);
         if (modulo) servidor.moduleGraph.invalidateModule(modulo);
         servidor.ws.send({ type: 'full-reload' });

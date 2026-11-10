@@ -265,8 +265,8 @@ let rutaActivaGlobal = '';
 let rutaRenderizada = '';
 let ultimaEjecucion = 0;
 let temporizadorCodigo = 0;
-/** Precarga de arranque (ejercicios que ya vienen resueltos); nunca rechaza. */
-let precargaPendiente = Promise.resolve();
+/** Marcas de arranque (ejercicios resueltos de fábrica); nunca rechaza. */
+let marcasPendientes = Promise.resolve();
 
 /* ============================================================
    CAPTURA DE CONSOLA (siempre se restaura)
@@ -317,7 +317,7 @@ function construirCatalogo() {
 
   return catalogoMetadatos
     .filter(({ ruta }) => typeof cargadoresEjercicios[ruta] === 'function')
-    .map(({ ruta, numero, dificultad: dificultadCruda, tags, enunciado, autoResuelto }) => {
+    .map(({ ruta, numero, dificultad: dificultadCruda, tags, enunciado, resuelto }) => {
       const segmentos = ruta
         .replace('./exercises/', '')
         .replace(/\/index\.js$/, '')
@@ -329,7 +329,7 @@ function construirCatalogo() {
 
       return {
         rutaReal: ruta,
-        autoResuelto: autoResuelto === true,
+        resuelto: resuelto === true,
         categoria: categoria.toUpperCase(),
         dificultad,
         dificultadClave: normalizar(dificultad),
@@ -657,8 +657,8 @@ async function ejecutarEjercicio(ruta) {
 
   const idEjecucion = ++ultimaEjecucion;
 
-  // La precarga de arranque captura consola: esperamos para no mezclarlas
-  await precargaPendiente;
+  // Las marcas de arranque actualizan la lista: esperamos para no mezclarlas
+  await marcasPendientes;
   if (idEjecucion !== ultimaEjecucion) return;
 
   let modulo;
@@ -1040,53 +1040,21 @@ selectorEjercicios.addEventListener(
 );
 
 /* ============================================================
-   PRECARGA DE ARRANQUE
-   Los ejercicios con `autoResuelto = true` (vienen resueltos de
-   fábrica) se ejecutan en silencio al iniciar para que aparezcan
-   como resueltos desde el primer momento, en cualquier navegador.
+   MARCAJE DE ARRANQUE
+   El catálogo horneado por Vite trae `resuelto` (las soluciones
+   de soluciones.js evaluadas al compilar): esos ejercicios se
+   marcan sin abrirlos, en cualquier navegador.
    ============================================================ */
-async function precargarResueltos() {
-  const pendientes = catalogo.filter((e) => e.autoResuelto && !completados.has(e.rutaReal));
+async function marcarResueltosDeFabrica() {
+  const pendientes = catalogo.filter((e) => e.resuelto && !completados.has(e.rutaReal));
 
   for (const { rutaReal } of pendientes) {
     try {
-      const modulo = await cargarEjercicio(rutaReal);
-      if (!modulo || typeof modulo.ejecutar !== 'function') continue;
-
-      // Captura muda: ni terminal ni devtools, solo el registro en memoria
-      const registro = [];
-      const silencio = Object.fromEntries(
-        Object.keys(consolaOriginal).map((nivel) => [
-          nivel,
-          (...args) => {
-            if (registro.length < MAX_ENTRADAS_TERMINAL) {
-              registro.push({
-                nivel,
-                origen: 'sistema',
-                meta: globalThis.__metaLog ?? null,
-                texto: args.map(formatearArgumento).join(' '),
-              });
-            }
-          },
-        ])
-      );
-
-      Object.assign(console, silencio);
-      try {
-        await modulo.ejecutar({
-          solo: null,
-          colapsadas: [],
-          codigoAbierto: [],
-          codigo: '',
-          codigoUsuario: { fuente: '', soluciones: [], error: null },
-        });
-      } finally {
-        restaurarConsola();
-      }
-
-      if (codigoResuelto(registro)) marcarResuelto(rutaReal, await huellaDeCodigo(rutaReal));
+      // Solo a las desmarcas manuales les hace falta comprobar la huella
+      if (rutaReal in desmarcadosAuto) marcarResuelto(rutaReal, await huellaDeCodigo(rutaReal));
+      else marcarResuelto(rutaReal);
     } catch {
-      /* una precarga fallida nunca debe frenar el arranque */
+      /* un fallo al marcar nunca debe frenar el arranque */
     }
   }
 }
@@ -1104,7 +1072,7 @@ function inicializarLaboratorio() {
   actualizarListaEjercicios();
 
   // Los que ya vienen resueltos se marcan sin esperar a que se abran
-  precargaPendiente = precargarResueltos().catch(() => {});
+  marcasPendientes = marcarResueltosDeFabrica().catch(() => {});
 
   // Prioridad: enlace profundo (#/origen/año/nn-nombre) > último ejercicio guardado
   const rutaDesdeHach = hachARuta(location.hash);

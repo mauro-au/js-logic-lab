@@ -5,9 +5,6 @@ export const numero = '02';
 export const dificultad = 'Fácil';
 export const tags = ['strings', 'arreglos', 'ordenamiento'];
 
-// Solución de fábrica: el ejercicio aparece resuelto en cualquier navegador
-export const autoResuelto = true;
-
 export const enunciado = `Escribe una función que reciba dos palabras (String) y retorne verdadero o falso (Boolean) según sean o no anagramas.
 - Un anagrama consiste en formar una palabra reordenando TODAS las letras de otra palabra inicial.
 - NO hace falta comprobar que ambas palabras existan.

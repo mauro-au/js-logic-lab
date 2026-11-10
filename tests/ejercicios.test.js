@@ -4,6 +4,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { codigoResuelto } from '../src/lib/progreso.js';
+import { evaluarResuelto } from '../src/lib/evaluar-resuelto.js';
 
 const RAIZ = process.cwd();
 const DIR_EJERCICIOS = join(RAIZ, 'src', 'exercises');
@@ -80,10 +81,6 @@ test('los 101 ejercicios cargan, tienen metadatos válidos y se ejecutan', async
         problemas.push(`${nombre}: enunciado vacío`);
       }
 
-      if (modulo.autoResuelto !== undefined && typeof modulo.autoResuelto !== 'boolean') {
-        problemas.push(`${nombre}: "autoResuelto" debe ser true o false`);
-      }
-
       if (typeof modulo.ejecutar !== 'function') {
         problemas.push(`${nombre}: no exporta ejecutar()`);
         continue;
@@ -101,17 +98,24 @@ test('los 101 ejercicios cargan, tienen metadatos válidos y se ejecutan', async
   assert.deepEqual(problemas, []);
 });
 
-test('los ejercicios con autoResuelto pasan sus casos sin código del usuario', async () => {
+test('evaluarResuelto (la ruta del build) decide igual que una ejecución libre', async () => {
   const directorios = [...recorrer(DIR_EJERCICIOS)];
   const problemas = [];
-  let marcados = 0;
+  const logOriginal = console.log;
+  let resueltos = 0;
 
   for (const dir of directorios) {
     const nombre = basename(dir);
     const modulo = await import(pathToFileURL(join(dir, 'index.js')).href);
-    if (modulo.autoResuelto !== true) continue;
-    marcados++;
 
+    const resuelto = await evaluarResuelto(modulo.ejecutar);
+    if (typeof resuelto !== 'boolean') {
+      problemas.push(`${nombre}: evaluarResuelto no devolvió booleano`);
+      continue;
+    }
+    if (resuelto) resueltos++;
+
+    // Ejecución independiente: comprueba que ambas rutas coinciden
     const registro = [];
     const originales = {};
     for (const nivel of NIVELES) {
@@ -120,20 +124,22 @@ test('los ejercicios con autoResuelto pasan sus casos sin código del usuario', 
         registro.push({ nivel, meta: globalThis.__metaLog ?? null, texto: args.join(' ') });
       };
     }
-
     try {
       modulo.ejecutar({ codigo: '' });
     } catch (error) {
-      problemas.push(`${nombre}: autoResuelto pero lanza ${error?.message ?? error}`);
+      problemas.push(`${nombre}: lanza ${error?.message ?? error}`);
     } finally {
       Object.assign(console, originales);
     }
 
-    if (!codigoResuelto(registro)) {
-      problemas.push(`${nombre}: autoResuelto pero ninguna solución pasa los casos`);
+    if (resuelto !== codigoResuelto(registro)) {
+      problemas.push(
+        `${nombre}: evaluarResuelto=${resuelto} pero la ejecución independiente da ${codigoResuelto(registro)}`
+      );
     }
   }
 
-  assert.ok(marcados >= 2, 'debería haber al menos 2 ejercicios autoResueltos');
+  assert.equal(console.log, logOriginal, 'evaluarResuelto debe restaurar la consola');
+  assert.ok(resueltos >= 3, `debería haber al menos 3 ejercicios resueltos de fábrica, hay ${resueltos}`);
   assert.deepEqual(problemas, []);
 });

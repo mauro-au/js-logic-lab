@@ -5,9 +5,6 @@ export const numero = '01';
 export const dificultad = 'Fácil';
 export const tags = ['bucles', 'condicionales', 'módulo'];
 
-// Solución de fábrica: el ejercicio aparece resuelto en cualquier navegador
-export const autoResuelto = true;
-
 export const enunciado = `Escribe un programa que muestre por consola los números del 1 al 100.
 - Si el número es múltiplo de 3, muestra "fizz" en lugar del número.
 - Si es múltiplo de 5, muestra "buzz".
