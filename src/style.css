@@ -586,19 +586,81 @@ select { color: var(--one-cyan); cursor: pointer; }
 .progreso-chip.medio strong { color: var(--one-orange); }
 .progreso-chip.dificil strong { color: var(--one-red); }
 
-/* ===== Editor: TU CÓDIGO ===== */
+/* ===== Editor: TU CÓDIGO =====
+   Tres capas con métricas idénticas: gutter numerado, <pre> con el
+   resaltado y el textarea transparente encima (el cursor sí se ve). */
 .title-editor { color: var(--one-cyan); }
 
+.editor-caja {
+  display: flex;
+  align-items: stretch;
+  min-height: 170px;
+  box-sizing: border-box;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.editor-caja:focus-within {
+  border-color: var(--one-blue);
+}
+
+.editor-gutter {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: 14px 8px 14px 10px;
+  overflow: hidden;
+  text-align: right;
+  min-width: 2.4em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: #5c6370;
+  background: #12161c;
+  border-right: 1px solid var(--border-color);
+  user-select: none;
+}
+.editor-gutter span { display: block; }
+
+.editor-capas { position: relative; flex: 1 1 auto; min-width: 0; }
+
+.editor-resalte {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 14px 16px;
+  overflow: hidden;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre;
+  color: #abb2bf;
+  background: transparent;
+}
+.editor-resalte code {
+  display: block;
+  font: inherit;
+  white-space: inherit;
+  color: inherit;
+  background: none;
+}
+
 .editor-codigo {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   box-sizing: border-box;
   min-height: 170px;
   resize: vertical;
-  background: var(--bg-terminal);
-  color: #abb2bf;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  background: transparent;
+  color: transparent;
+  caret-color: #abb2bf;
+  border: none;
+  border-radius: 0;
   padding: 14px 16px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
@@ -608,12 +670,41 @@ select { color: var(--one-cyan); cursor: pointer; }
   overflow-wrap: normal;
   overflow-x: auto;
 }
-.editor-codigo::placeholder { color: #5c6370; }
+.editor-codigo::placeholder { color: #5c6370; opacity: 1; }
 .editor-codigo:focus-visible {
   outline: 2px solid var(--accent-blue);
-  outline-offset: 1px;
-  border-color: var(--one-blue);
+  outline-offset: -2px;
 }
+
+.btn-editor-full { min-width: 32px; }
+
+/* Pantalla completa del editor */
+.card-editor.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  margin: 0;
+  padding: 16px;
+  border: none;
+  border-radius: 0;
+  overflow: auto;
+  background: var(--bg-card);
+}
+/* El bloqueo de scroll vive en CSS: sobrevive a los re-renderizados */
+body:has(.card-editor.fullscreen) { overflow: hidden; }
+.card-editor.fullscreen .editor-caja {
+  height: calc(100vh - 130px);
+  min-height: 0;
+}
+.card-editor.fullscreen .editor-capas { position: relative; }
+.card-editor.fullscreen .editor-codigo {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  min-height: 0;
+  resize: none;
+}
+.card-editor.fullscreen .editor-pie { flex-wrap: nowrap; }
 
 .editor-pie {
   display: flex;
@@ -627,6 +718,12 @@ select { color: var(--one-cyan); cursor: pointer; }
 .editor-estado-ok { color: var(--one-green); }
 .editor-estado-error { color: var(--one-red); word-break: break-word; }
 .editor-estado-vacio { color: var(--one-orange); }
+.editor-pos {
+  flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: var(--one-muted);
+}
 .editor-atajo {
   flex-shrink: 0;
   font-family: 'JetBrains Mono', monospace;
@@ -649,5 +746,7 @@ kbd {
 
 @media (max-width: 900px) {
   .atajos-status { display: none; }
-  .editor-codigo { font-size: 16px; } /* evita el zoom automático en iOS */
+  /* 16px evita el zoom automático en iOS: las tres capas deben coincidir */
+  .editor-codigo, .editor-resalte, .editor-gutter { font-size: 16px; }
+  .editor-pos { display: none; }
 }

@@ -3,6 +3,20 @@ import catalogoMetadatos from 'virtual:catalogo-ejercicios';
 import { compilarCodigoUsuario } from './lib/codigo.js';
 import { codigoResuelto, estadoAutoMarca, huellaCodigo } from './lib/progreso.js';
 import { hachARuta, rutaAHach } from './lib/ruta.js';
+import { resaltar } from './lib/resaltado.js';
+import {
+  insertarTab,
+  quitarTab,
+  autoIndentar,
+  alternarComentario,
+  moverLinea,
+  duplicarLinea,
+  autocerrar,
+  saltarPar,
+  borrarPar,
+  lineaColumna,
+  numeracionLineas,
+} from './lib/teclas-editor.js';
 
 /* ============================================================
    REFERENCIAS DOM
@@ -586,22 +600,36 @@ function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo
             <h2 class="title-editor">● TU CÓDIGO</h2>
             <div class="header-actions-right">
               <button type="button" data-accion="limpiar-editor" class="btn-solved-header">Limpiar</button>
+              <button
+                type="button"
+                data-accion="pantalla-completa"
+                class="btn-solved-header btn-editor-full"
+                aria-pressed="false"
+                title="Pantalla completa del editor (Esc para salir)"
+              >⛶</button>
               <span class="badge-dom">Editor local</span>
             </div>
           </div>
           <label class="sr-only" for="editor-codigo">Escribe tu solución para este ejercicio</label>
-          <textarea
-            id="editor-codigo"
-            class="editor-codigo"
-            rows="9"
-            spellcheck="false"
-            autocomplete="off"
-            autocapitalize="off"
-            placeholder="// Escribe aquí tu solución, por ejemplo:&#10;// function miSolucion(n) { ... }&#10;//&#10;// Se compila y se ejecuta contra los mismos casos que el resto."
-          >${escapar(editor.fuente)}</textarea>
+          <div class="editor-caja">
+            <div class="editor-gutter" aria-hidden="true"></div>
+            <div class="editor-capas">
+              <pre class="editor-resalte" aria-hidden="true"><code class="hljs"></code></pre>
+              <textarea
+                id="editor-codigo"
+                class="editor-codigo"
+                rows="9"
+                spellcheck="false"
+                autocomplete="off"
+                autocapitalize="off"
+                placeholder="// Escribe aquí tu solución, por ejemplo:&#10;// function miSolucion(n) { ... }&#10;//&#10;// Se compila y se ejecuta contra los mismos casos que el resto."
+              >${escapar(editor.fuente)}</textarea>
+            </div>
+          </div>
           <div class="editor-pie">
             ${estadoEditor}
-            <span class="editor-atajo">Ctrl/Cmd + Enter → ejecutar</span>
+            <span class="editor-pos">Ln 1, Col 1</span>
+            <span class="editor-atajo">Tab → sangría · Ctrl/Cmd + Enter → ejecutar</span>
           </div>
         </div>
 
@@ -759,6 +787,7 @@ async function ejecutarEjercicio(ruta) {
     },
   });
 
+  engancharEditor();
   rutaRenderizada = ruta;
   if (mismoEjercicio) window.scrollTo(0, scrollY);
 
@@ -901,6 +930,151 @@ window.addEventListener(
 );
 
 /* ============================================================
+   EDITOR "TU CÓDIGO": resaltado en vivo, gutter y Ln/Col
+   ============================================================ */
+
+/** Repinta el overlay (resaltado + numeración) y el indicador Ln/Col. */
+function refrescarEditor(area) {
+  const capas = area.parentElement;
+  const code = capas?.querySelector('.editor-resalte code');
+  if (code) {
+    // Un espacio final evita que la última línea vacía se colapse
+    const texto = area.value;
+    const pintar = texto === '' || texto.endsWith('\n') ? `${texto} ` : texto;
+    code.innerHTML = resaltar(pintar);
+  }
+
+  const gutter = capas?.parentElement?.querySelector('.editor-gutter');
+  if (gutter) {
+    gutter.innerHTML = numeracionLineas(area.value)
+      .map((numero) => `<span>${numero}</span>`)
+      .join('');
+  }
+
+  actualizarPosEditor(area);
+  sincronizarScroll(area);
+}
+
+/** El textarea manda: el <pre> y el gutter le siguen en ambos ejes. */
+function sincronizarScroll(area) {
+  const capas = area.parentElement;
+  const pre = capas?.querySelector('.editor-resalte');
+  if (pre) {
+    pre.scrollTop = area.scrollTop;
+    pre.scrollLeft = area.scrollLeft;
+  }
+  const gutter = capas?.parentElement?.querySelector('.editor-gutter');
+  if (gutter) gutter.scrollTop = area.scrollTop;
+}
+
+function actualizarPosEditor(area) {
+  const destino = contenedorResultado.querySelector('.editor-pos');
+  if (!destino) return;
+  const { linea, columna } = lineaColumna(area.value, area.selectionStart);
+  destino.textContent = `Ln ${linea}, Col ${columna}`;
+}
+
+/** Aplica un cambio devuelto por teclas-editor.js y dispara el guardado. */
+function aplicarEnEditor(area, cambio) {
+  if (!cambio) return;
+  area.value = cambio.texto;
+  try {
+    area.setSelectionRange(cambio.inicio, cambio.fin);
+  } catch { /* selección no soportada */ }
+  area.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+/** Engancha el editor recién renderizado (overlay + indicadores). */
+function engancharEditor() {
+  const area = contenedorResultado.querySelector('.editor-codigo');
+  if (area instanceof HTMLTextAreaElement) refrescarEditor(area);
+}
+
+function salirPantallaCompleta(tarjeta) {
+  tarjeta.classList.remove('fullscreen');
+  const boton = tarjeta.querySelector('[data-accion="pantalla-completa"]');
+  if (boton instanceof HTMLButtonElement) {
+    boton.textContent = '⛶';
+    boton.setAttribute('aria-pressed', 'false');
+  }
+  const area = tarjeta.querySelector('.editor-codigo');
+  if (area instanceof HTMLTextAreaElement) {
+    refrescarEditor(area);
+    area.focus({ preventScroll: true });
+  }
+}
+
+/**
+ * Atajos propios del editor. Devuelve `true` si el evento se consumió
+ * (ya llamado preventDefault) y `false` para dejarlo al navegador.
+ */
+function manejarTeclasEditor(evento, area) {
+  const { value, selectionStart: inicio, selectionEnd: fin } = area;
+  const combinado = evento.ctrlKey || evento.metaKey;
+
+  // Tab / Shift+Tab → sangría de 2 espacios (o en bloque)
+  if (evento.key === 'Tab') {
+    evento.preventDefault();
+    aplicarEnEditor(area, evento.shiftKey ? quitarTab(value, inicio, fin) : insertarTab(value, inicio, fin));
+    return true;
+  }
+
+  // Enter → conserva la sangría (sin auto-cierra de llaves: decisión deliberada)
+  if (evento.key === 'Enter' && !combinado && !evento.altKey && !evento.shiftKey) {
+    evento.preventDefault();
+    aplicarEnEditor(area, autoIndentar(value, inicio, fin));
+    return true;
+  }
+
+  // Ctrl/Cmd + / → comenta/descomenta la selección
+  if (combinado && evento.key === '/') {
+    evento.preventDefault();
+    aplicarEnEditor(area, alternarComentario(value, inicio, fin));
+    return true;
+  }
+
+  // Alt + ↑/↓ mover línea · Shift + Alt + ↑/↓ duplicar
+  if (evento.altKey && !combinado && (evento.key === 'ArrowUp' || evento.key === 'ArrowDown')) {
+    evento.preventDefault();
+    const desplazamiento = evento.key === 'ArrowUp' ? -1 : 1;
+    aplicarEnEditor(
+      area,
+      evento.shiftKey
+        ? duplicarLinea(value, inicio, fin)
+        : moverLinea(value, inicio, fin, desplazamiento)
+    );
+    return true;
+  }
+
+  // Retroceso que borra un par vacío
+  if (evento.key === 'Backspace' && !combinado && !evento.altKey) {
+    const cambio = borrarPar(value, inicio, fin);
+    if (!cambio) return false;
+    evento.preventDefault();
+    aplicarEnEditor(area, cambio);
+    return true;
+  }
+
+  // Auto-cierre: saltar el cierre que ya está o insertar el par
+  if (!combinado && !evento.altKey && evento.key.length === 1) {
+    const salto = saltarPar(value, inicio, fin, evento.key);
+    if (salto) {
+      evento.preventDefault();
+      aplicarEnEditor(area, salto);
+      return true;
+    }
+    const par = autocerrar(value, inicio, fin, evento.key);
+    if (par) {
+      evento.preventDefault();
+      aplicarEnEditor(area, par);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/* ============================================================
    ATAJOS DE TECLADO
    ============================================================ */
 const esEditable = (elemento) =>
@@ -912,6 +1086,25 @@ document.addEventListener(
   'keydown',
   (evento) => {
     const combinado = evento.ctrlKey || evento.metaKey;
+
+    // Esc → salir del modo pantalla completa del editor
+    if (evento.key === 'Escape') {
+      const tarjeta = contenedorResultado.querySelector('.card-editor.fullscreen');
+      if (tarjeta) {
+        evento.preventDefault();
+        salirPantallaCompleta(tarjeta);
+        return;
+      }
+    }
+
+    // Atajos propios del editor (Tab, Enter con sangría, Ctrl+/, Alt+flechas…)
+    if (
+      evento.target instanceof HTMLTextAreaElement &&
+      evento.target.classList.contains('editor-codigo') &&
+      manejarTeclasEditor(evento, evento.target)
+    ) {
+      return;
+    }
 
     // Ctrl/Cmd + Enter → ejecutar el ejercicio activo
     if (combinado && evento.key === 'Enter') {
@@ -966,6 +1159,23 @@ contenedorResultado.addEventListener(
       ejecutarEjercicio(rutaActivaGlobal);
     }
 
+    if (accion === 'pantalla-completa') {
+      const tarjeta = boton.closest('.card-editor');
+      if (!tarjeta) return;
+      if (tarjeta.classList.contains('fullscreen')) {
+        salirPantallaCompleta(tarjeta);
+      } else {
+        tarjeta.classList.add('fullscreen');
+        boton.textContent = '✕';
+        boton.setAttribute('aria-pressed', 'true');
+        const area = tarjeta.querySelector('.editor-codigo');
+        if (area instanceof HTMLTextAreaElement) {
+          refrescarEditor(area);
+          area.focus({ preventScroll: true });
+        }
+      }
+    }
+
     if (accion === 'solo') {
       evento.preventDefault(); // el botón vive dentro de <summary>: no plegar el bloque
       const op = opcionesDe(rutaActivaGlobal);
@@ -1015,10 +1225,45 @@ contenedorResultado.addEventListener(
   (evento) => {
     const area = evento.target;
     if (!(area instanceof HTMLTextAreaElement) || !area.classList.contains('editor-codigo')) return;
+    refrescarEditor(area);
     const ruta = rutaActivaGlobal;
     if (!ruta) return;
     clearTimeout(temporizadorCodigo);
     temporizadorCodigo = setTimeout(() => guardarCodigoDe(ruta, area.value), 300);
+  },
+  { signal }
+);
+
+// El overlay y el gutter siguen el scroll del textarea (scroll no burbujea)
+contenedorResultado.addEventListener(
+  'scroll',
+  (evento) => {
+    const area = evento.target;
+    if (area instanceof HTMLTextAreaElement && area.classList.contains('editor-codigo')) {
+      sincronizarScroll(area);
+    }
+  },
+  { capture: true, signal }
+);
+
+// Ln/Col al mover el cursor con el teclado o el ratón
+contenedorResultado.addEventListener(
+  'keyup',
+  (evento) => {
+    const area = evento.target;
+    if (area instanceof HTMLTextAreaElement && area.classList.contains('editor-codigo')) {
+      actualizarPosEditor(area);
+    }
+  },
+  { signal }
+);
+contenedorResultado.addEventListener(
+  'click',
+  (evento) => {
+    const area = evento.target;
+    if (area instanceof HTMLTextAreaElement && area.classList.contains('editor-codigo')) {
+      actualizarPosEditor(area);
+    }
   },
   { signal }
 );
