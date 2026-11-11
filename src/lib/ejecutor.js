@@ -321,7 +321,6 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
    * @param {object} [opciones]
    * @param {string|null} [opciones.solo]           muestra solo esa solución
    * @param {string[]} [opciones.colapsadas]        bloques plegados
-   * @param {string[]} [opciones.codigoAbierto]     bloques de código abiertos
    * @param {string} [opciones.codigo]              fuente de soluciones.js (para mostrarla)
    * @param {{fuente?: string, soluciones?: Array<{nombre: string, fn: Function}>, error?: string|null}} [opciones.codigoUsuario]
    *                                               código escrito en el editor, compilado por compilarCodigoUsuario
@@ -330,7 +329,6 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
     const {
       solo = null,
       colapsadas = [],
-      codigoAbierto = [],
       codigo = '',
       codigoUsuario = null,
     } = opciones ?? {};
@@ -488,14 +486,12 @@ export function crearEjecutor({ soluciones = {}, casos: casosIniciales, demo }) 
 
       const textoCodigo =
         fuentesUsuario.get(nombre) ?? funcionesFuente.get(nombre) ?? fn.toString();
+      // Un solo acordeón: al desplegar el nombre se ve el código directo
       const bloqueCodigo = `
-        <details class="sol-codigo" data-nombre="${escapar(nombre)}" ${codigoAbierto.includes(nombre) ? 'open' : ''}>
-          <summary>Ver código</summary>
-          <div class="codigo-caja">
-            <button type="button" class="btn-copiar" data-accion="copiar">Copiar</button>
-            <pre><code class="hljs">${resaltar(textoCodigo)}</code></pre>
-          </div>
-        </details>`;
+        <div class="codigo-caja">
+          <button type="button" class="btn-copiar" data-accion="copiar">Copiar</button>
+          <pre><code class="hljs">${resaltar(textoCodigo)}</code></pre>
+        </div>`;
 
       // La tarjeta solo muestra el código: aciertos, tiempos, tabla y demo van en la terminal
       return `

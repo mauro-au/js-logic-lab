@@ -92,7 +92,7 @@ function plantillaIndex({ numero, dificultad, tags, nombre, importEjecutor }) {
 function plantillaSoluciones() {
   return [
     '// Cada función exportada es una solución distinta. Agrega todas las que quieras.',
-    '// Tip: un comentario justo encima de cada función se muestra en "Ver código".',
+    '// Tip: un comentario justo encima de cada función se muestra al desplegar la función.',
     '// Tip: con el prefijo solo_ (ej. solo_miSolucion) se ejecuta únicamente esa.',
     '// Tip: si necesitas funciones auxiliares, defínelas DENTRO de la solución.',
     '',

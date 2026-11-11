@@ -145,7 +145,7 @@ test('modo libre: ejecuta sin casos y muestra el retorno', () => {
 
   const { salida, registro } = ejecutarCapturando(ejecutar);
   assert.ok(registro.some((linea) => linea.texto.includes('▶ saludo()')));
-  assert.match(salida, /Ver código/);
+  assert.match(salida, /class="codigo-caja"/); // el código va directo en el acordeón
 });
 
 test('extraerSoluciones reconoce funciones y constantes exportadas', () => {
@@ -184,7 +184,7 @@ test('el código del usuario corre junto a las soluciones del ejercicio', () => 
 
   assert.match(salida, /TU CÓDIGO/);
   assert.match(salida, /dobleOficial/);
-  assert.match(salida, /Ver código/);
+  assert.match(salida, /class="codigo-caja"/);
   assert.ok(registro.some((linea) => linea.texto.includes('✅ TU CÓDIGO(3) → 6')));
   assert.ok(registro.some((linea) => linea.texto.includes('✅ dobleOficial(3) → 6')));
 });
@@ -210,7 +210,9 @@ test('la tarjeta de resultados solo deja el código, sin tablas ni demos', () =>
   const { salida, registro } = ejecutarCapturando(ejecutar);
 
   assert.match(salida, /sol-bloque/);
-  assert.match(salida, /Ver código/);
+  assert.match(salida, /class="codigo-caja"/);
+  assert.doesNotMatch(salida, /Ver código/); // un solo acordeón: el de la función
+  assert.doesNotMatch(salida, /<details class="sol-codigo"/);
   assert.doesNotMatch(salida, /sol-tabla/); // los casos se ven en la terminal
   assert.doesNotMatch(salida, /sol-badge/); // aciertos y tiempos también
   assert.doesNotMatch(salida, /sol-demo/); // la demo solo en la terminal

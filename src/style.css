@@ -332,26 +332,8 @@ select { color: var(--one-cyan); cursor: pointer; }
 }
 .sol-filtro code { font-family: 'JetBrains Mono', monospace; color: var(--text-white); }
 
-/* ===== Ver código ===== */
-.sol-codigo { margin-top: 12px; }
-.sol-codigo > summary {
-  list-style: none;
-  cursor: pointer;
-  user-select: none;
-  font-size: 0.75rem;
-  color: var(--one-blue);
-}
-.sol-codigo > summary::-webkit-details-marker { display: none; }
-.sol-codigo > summary::before {
-  content: '▸';
-  display: inline-block;
-  margin-right: 6px;
-  transition: transform 0.15s ease;
-}
-.sol-codigo[open] > summary::before { transform: rotate(90deg); }
-.sol-codigo > summary:hover { color: #fff; }
-
-.codigo-caja { position: relative; margin-top: 8px; }
+/* ===== Código de la solución (directo dentro del acordeón de la función) ===== */
+.codigo-caja { position: relative; }
 .codigo-caja pre {
   margin: 0;
   padding: 14px 16px;

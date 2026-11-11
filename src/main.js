@@ -237,11 +237,10 @@ const opciones = cargarOpciones();
 function opcionesDe(ruta) {
   const actual = opciones[ruta];
   if (!actual || typeof actual !== 'object') {
-    opciones[ruta] = { solo: null, colapsadas: [], codigoAbierto: [] };
+    opciones[ruta] = { solo: null, colapsadas: [] };
   } else {
     if (typeof actual.solo !== 'string') actual.solo = null;
     if (!Array.isArray(actual.colapsadas)) actual.colapsadas = [];
-    if (!Array.isArray(actual.codigoAbierto)) actual.codigoAbierto = [];
   }
   return opciones[ruta];
 }
@@ -729,7 +728,6 @@ async function ejecutarEjercicio(ruta) {
     salida = await modulo.ejecutar({
       solo: opcionesEjercicio.solo,
       colapsadas: opcionesEjercicio.colapsadas,
-      codigoAbierto: opcionesEjercicio.codigoAbierto,
       codigo,
       codigoUsuario: {
         fuente: fuenteUsuario,
@@ -810,7 +808,7 @@ async function ejecutarEjercicio(ruta) {
 }
 
 async function copiarCodigo(boton) {
-  const texto = boton.closest('.sol-codigo')?.querySelector('code')?.textContent ?? '';
+  const texto = boton.closest('.codigo-caja')?.querySelector('code')?.textContent ?? '';
   try {
     await navigator.clipboard.writeText(texto);
     boton.textContent = '✓ Copiado';
@@ -1194,22 +1192,15 @@ contenedorResultado.addEventListener(
   (evento) => {
     const detalle = evento.target;
     if (!(detalle instanceof HTMLDetailsElement) || !rutaActivaGlobal) return;
+    if (!detalle.classList.contains('sol-bloque')) return;
 
-    const campo = detalle.classList.contains('sol-bloque')
-      ? 'colapsadas'
-      : detalle.classList.contains('sol-codigo')
-        ? 'codigoAbierto'
-        : null;
-    if (!campo) return;
-
+    // "colapsadas" guarda los cerrados (un solo acordeón: el nombre de la función)
     const op = opcionesDe(rutaActivaGlobal);
-    const lista = new Set(op[campo]);
-    // "colapsadas" guarda los cerrados; "codigoAbierto" guarda los abiertos
-    const guardar = campo === 'colapsadas' ? !detalle.open : detalle.open;
-    if (guardar) lista.add(detalle.dataset.nombre);
-    else lista.delete(detalle.dataset.nombre);
+    const lista = new Set(op.colapsadas);
+    if (detalle.open) lista.delete(detalle.dataset.nombre);
+    else lista.add(detalle.dataset.nombre);
 
-    op[campo] = [...lista];
+    op.colapsadas = [...lista];
     guardarOpciones();
   },
   { capture: true, signal } // "toggle" no burbujea
