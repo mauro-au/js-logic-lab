@@ -21,14 +21,16 @@ encuentra en una cuadrícula representada por los ejes "x" e "y".
   secuencia de pasos gira 90 grados en el sentido contrario a las agujas
   del reloj.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Coordenadas finales como objeto plano { x, y } (ver ejemplo del enunciado).
+export const casos = [
+  { entrada: [[10, 5, -2]], esperado: { x: -5, y: 12 } },
+  { entrada: [[]], esperado: { x: 0, y: 0 } },
+  { entrada: [[5]], esperado: { x: 0, y: 5 } },
+  { entrada: [[5, 5]], esperado: { x: -5, y: 5 } },
+  { entrada: [[1, 2, 3, 4]], esperado: { x: 2, y: -2 } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: la secuencia de pasos del enunciado.
+export const demo = (robot) => robot([10, 5, -2]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

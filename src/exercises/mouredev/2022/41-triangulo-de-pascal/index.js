@@ -11,14 +11,17 @@ indicándole únicamente el tamaño del lado.
 - Aquí puedes ver rápidamente cómo se calcula el triángulo:
   https://commons.wikimedia.org/wiki/File:PascalTriangleAnimated2.gif`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado pide "dibujar" el triángulo: lo devolvemos como array de líneas
+// (una por fila, números separados por un espacio y sin centrar) porque se
+// lee mejor en la terminal que un string multilínea con \n.
+export const casos = [
+  { entrada: [1], esperado: ['1'] },
+  { entrada: [2], esperado: ['1', '1 1'] },
+  { entrada: [3], esperado: ['1', '1 1', '1 2 1'] },
+  { entrada: [5], esperado: ['1', '1 1', '1 2 1', '1 3 3 1', '1 4 6 4 1'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: triángulo de Pascal de lado 8
+export const demo = (pascal) => pascal(8);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -8,14 +8,15 @@ export const tags = ['matemáticas', 'recursión'];
 export const enunciado = `Escribe una función que calcule y retorne el factorial de un número dado
 de forma recursiva.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+export const casos = [
+  { entrada: [0], esperado: 1 },
+  { entrada: [1], esperado: 1 },
+  { entrada: [3], esperado: 6 },
+  { entrada: [5], esperado: 120 },
+  { entrada: [10], esperado: 3628800 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: factorial de 10
+export const demo = (factorial) => factorial(10);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

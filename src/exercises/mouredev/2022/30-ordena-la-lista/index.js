@@ -12,14 +12,20 @@ export const enunciado = `Crea una función que ordene y retorne una matriz de n
 - No se pueden utilizar funciones propias del lenguaje que lo resuelvan
   automáticamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// entrada = [lista, 'Asc' | 'Desc']; retorna la lista ordenada.
+export const casos = [
+  { entrada: [[2, 4, 6, 8, 9], 'Asc'], esperado: [2, 4, 6, 8, 9] },
+  { entrada: [[2, 4, 6, 8, 9], 'Desc'], esperado: [9, 8, 6, 4, 2] },
+  { entrada: [[5, 3, 8, 1], 'Asc'], esperado: [1, 3, 5, 8] },
+  { entrada: [[5, 3, 8, 1], 'Desc'], esperado: [8, 5, 3, 1] },
+  { entrada: [[7], 'Asc'], esperado: [7] },
+  { entrada: [[], 'Desc'], esperado: [] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: ordenar la misma lista en ambos sentidos
+export const demo = (ordena) => [
+  ordena([4, 2, 9, 1, 5], 'Asc'),
+  ordena([4, 2, 9, 1, 5], 'Desc'),
+];
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

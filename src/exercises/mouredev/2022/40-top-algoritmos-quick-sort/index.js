@@ -13,14 +13,17 @@ el "Quick Sort", creado por C.A.R. Hoare.
 - Esta es una nueva serie de retos llamada "TOP ALGORITMOS",
   donde trabajaremos y entenderemos los más famosos de la historia.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// entrada = lista de números; retorna la lista ordenada de menor a mayor.
+export const casos = [
+  { entrada: [[3, 1, 4, 1, 5]], esperado: [1, 1, 3, 4, 5] },
+  { entrada: [[2, 4, 6, 8, 9]], esperado: [2, 4, 6, 8, 9] },
+  { entrada: [[9, 7, -2, 0, 12]], esperado: [-2, 0, 7, 9, 12] },
+  { entrada: [[1, 2, 3, 4, 5]], esperado: [1, 2, 3, 4, 5] },
+  { entrada: [[5]], esperado: [5] },
+  { entrada: [[]], esperado: [] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: quick sort de una lista desordenada
+export const demo = (quickSort) => quickSort([9, 3, 7, 1, 8, 2, 5, 4, 6, 0]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

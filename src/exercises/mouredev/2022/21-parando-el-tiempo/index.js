@@ -13,14 +13,11 @@ unos segundos.
   asíncrona, es decir, sin detener la ejecución del programa principal.
   Se podría ejecutar varias veces al mismo tiempo.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: el resultado llega en una promesa (asíncrono) y el ejecutor no hace
+// await, así que nunca coincidiría con un número esperado.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: sumar 5 + 3 con 1 segundo de espera.
+export const demo = (sumar) => sumar(5, 3, 1);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

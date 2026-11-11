@@ -17,14 +17,17 @@ Ejemplos:
 "5 + 6 / 7 - 4" -> true
 "5 a 6" -> false`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe la expresión (String) y retorna true o false.
+export const casos = [
+  { entrada: ['5 + 6 / 7 - 4'], esperado: true }, // ejemplo del enunciado
+  { entrada: ['5 a 6'], esperado: false }, // ejemplo del enunciado
+  { entrada: ['2 * 3'], esperado: true },
+  { entrada: ['-5 + 6.5'], esperado: true }, // número negativo y decimal
+  { entrada: ['5 +'], esperado: false }, // falta el segundo número
+  { entrada: ['hola mundo'], esperado: false }, // sin números ni operaciones
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: comprobar la expresión del ejemplo del enunciado.
+export const demo = (expresion) => expresion('5 + 6 / 7 - 4');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -22,14 +22,15 @@ de agua quedarán atrapadas entre ellos.
   de agua. Suponemos que existe un suelo impermeable en la parte inferior
   que retiene el agua.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+export const casos = [
+  { entrada: [[4, 0, 3, 6, 1, 3]], esperado: 7 },
+  { entrada: [[5, 0, 5]], esperado: 5 },
+  { entrada: [[1, 2, 3]], esperado: 0 },
+  { entrada: [[0, 1, 0, 2, 0, 1, 0, 3]], esperado: 6 },
+  { entrada: [[]], esperado: 0 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: calcular el agua atrapada en el ejemplo del enunciado.
+export const demo = (contenedor) => contenedor([4, 0, 3, 6, 1, 3]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

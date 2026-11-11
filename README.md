@@ -4,7 +4,7 @@
 
 # 🧪 JS Logic Lab
 
-Laboratorio interactivo para practicar lógica de programación en JavaScript. Incluye 101 retos con enunciado, casos de prueba opcionales, soluciones de referencia y una terminal simulada para comparar resultados y tiempos.
+Laboratorio interactivo para practicar lógica de programación en JavaScript. Incluye 101 retos con enunciado, casos de prueba y demo (el reto principal), y una terminal simulada para comparar resultados y tiempos.
 
 [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mauro-au/js-logic-lab)
 
@@ -33,6 +33,7 @@ El mismo flujo se ejecuta en GitHub Actions (`.github/workflows/ci.yml`).
 - **Atajos de teclado**: `Ctrl/Cmd + Enter` ejecuta el ejercicio activo; `Ctrl/Cmd + K` o `/` enfocan el buscador.
 - **Resumen de progreso**: barra global de completados y desglose por dificultad, siempre visible bajo los filtros.
 - **Resuelto automático**: cuando una solución pasa todos los casos —la del editor, la que agregues en `soluciones.js` o la de fábrica— el ejercicio se marca solo como resuelto. Las soluciones de `soluciones.js` se evalúan al compilar y viajan horneadas en el catálogo, así que los ejercicios que ya resolviste aparecen marcados **en cualquier navegador desde que se abre la página**, sin haberlos abierto antes. Lo que escribas en el editor de la página vive en `localStorage` (por navegador) y se marca al ejecutarlo. Una desmarca hecha con el botón «✓ Completado» no se repite hasta que cambies el código de ese ejercicio.
+- **Casos de prueba y demo**: cada ejercicio exporta `casos` (2 a 6 comprobaciones con entrada y resultado esperado) y `demo`, el reto principal, que la terminal muestra con ★ cuando todos los casos pasan. Los ejercicios sin valor esperado fijo —azar, red, ficheros o interacción— van en modo libre (`casos = []`) pero conservan su demo.
 - **Terminal como fuente única de resultados**: casos, aciertos, tiempos, errores, demo y logs se ven en la terminal; la tarjeta de resultados solo conserva el código de cada solución (plegable, con botón «Copiar») y su pie de estado.
 
 ## 🧭 Cómo funciona

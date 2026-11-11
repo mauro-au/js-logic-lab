@@ -18,14 +18,11 @@ resultado e imprímelo.
 - Si el formato del .txt no es correcto, se indicará que no se han
   podido resolver las operaciones.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: lee un fichero externo ("Challenge21.txt") y su resultado depende de él.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: calcular el resultado del fichero (la salida va a la terminal).
+export const demo = (calculadora) =>
+  calculadora() ?? 'resultado impreso en la terminal';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

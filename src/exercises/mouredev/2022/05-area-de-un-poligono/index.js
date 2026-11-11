@@ -11,7 +11,7 @@ export const enunciado = `Crea una única función (importante que sólo sea una
 - Imprime el cálculo del área de un polígono de cada tipo.`;
 
 // entrada = [polígono]. Cada polígono es un objeto con su tipo y sus medidas.
-const casos = [
+export const casos = [
   { entrada: [{ tipo: 'triangulo', base: 10, altura: 5 }], esperado: 25 },
   { entrada: [{ tipo: 'triangulo', base: 3, altura: 3 }], esperado: 4.5 },
   { entrada: [{ tipo: 'cuadrado', lado: 4 }], esperado: 16 },
@@ -21,7 +21,7 @@ const casos = [
 ];
 
 // Reto principal: el área de un polígono de cada tipo
-const demo = (area) => [
+export const demo = (area) => [
   area({ tipo: 'triangulo', base: 10, altura: 5 }),
   area({ tipo: 'cuadrado', lado: 4 }),
   area({ tipo: 'rectangulo', base: 3, altura: 7 }),

@@ -17,14 +17,16 @@ Crea un programa que calcule los puntos de una palabra.
 - Puedes usar la terminal para interactuar con el usuario y solicitarle
   cada palabra.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Puntos por letra según el abecedario español de 27 letras del enunciado:
+// A = 1 … N = 14, Ñ = 15, O = 16 … Z = 27 (por eso la O vale 16, no 15).
+export const casos = [
+  { entrada: ['hola'], esperado: 37 }, // h8 + o16 + l12 + a1
+  { entrada: ['adios'], esperado: 50 }, // a1 + d4 + i9 + o16 + s20
+  { entrada: ['mañana'], esperado: 45 }, // fija la Ñ = 15: m13 + a1 + ñ15 + a1 + n14 + a1
+  { entrada: ['zz'], esperado: 54 }, // fija la Z = 27
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: los puntos de una palabra.
+export const demo = (puntos) => puntos('mouredev');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

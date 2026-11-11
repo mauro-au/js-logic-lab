@@ -13,14 +13,14 @@ export const enunciado = `Crea tres test sobre el reto 12: "Viernes 13".
 - Los tres test deben de funcionar y comprobar
   diferentes situaciones (a tu elección).`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: pide tres tests ejecutados con el mecanismo de tests del
+// lenguaje (no una función pura) → sin valor esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: lanza los tres tests sobre el reto 12; el resultado se verá en la terminal.
+export const demo = (tests) => {
+  tests();
+  return '🧪 Tests del reto 12 "Viernes 13" lanzados';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

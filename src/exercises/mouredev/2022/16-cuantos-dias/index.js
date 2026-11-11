@@ -13,14 +13,17 @@ de texto que representen fechas.
 - Si una de las dos cadenas de texto no representa una fecha correcta se
   lanzará una excepción.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El intervalo es absoluto (no importa el orden de las fechas).
+export const casos = [
+  { entrada: ['01/01/2022', '01/01/2022'], esperado: 0 },
+  { entrada: ['28/02/2021', '01/03/2021'], esperado: 1 },
+  { entrada: ['28/02/2020', '01/03/2020'], esperado: 2 }, // 2020 fue bisiesto
+  { entrada: ['01/01/2022', '31/01/2022'], esperado: 30 },
+  { entrada: ['01/01/2020', '01/01/2021'], esperado: 366 },
+  { entrada: ['01/01/2021', '01/01/2020'], esperado: 366 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: días completos de 2022
+export const demo = (dias) => dias('01/01/2022', '31/12/2022');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

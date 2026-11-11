@@ -20,14 +20,16 @@ carrera de obstáculos.
 - La función retornará un Boolean que indique si ha superado la carrera.
 Para ello tiene que realizar la opción correcta en cada tramo de la pista.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: (array de movimientos, pista) → booleano; la pista modificada solo se imprime.
+export const casos = [
+  { entrada: [['run', 'jump', 'run', 'jump', 'run'], '_|_|_'], esperado: true },
+  { entrada: [['run', 'run', 'jump', 'jump'], '__||'], esperado: true },
+  { entrada: [['run', 'run'], '_|'], esperado: false },
+  { entrada: [['jump', 'jump'], '_|'], esperado: false },
+  { entrada: [['jump', 'run'], '_|'], esperado: false },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: recorrer una pista completa sin fallos.
+export const demo = (carrera) => carrera(['run', 'jump', 'run', 'jump', 'run'], '_|_|_');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

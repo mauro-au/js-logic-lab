@@ -13,14 +13,16 @@ un array de números enteros e imprima cada uno de ellos.
 - En el array [2, 1, 2, 3, 3, 4, 2, 4] hay 2 bumeranes ([2, 1, 2]
   y [4, 2, 4]).`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado también pide imprimir cada bumerán, pero el retorno es solo el total.
+export const casos = [
+  { entrada: [[2, 1, 2]], esperado: 1 },
+  { entrada: [[2, 1, 2, 3, 3, 4, 2, 4]], esperado: 2 },
+  { entrada: [[1, 2, 3]], esperado: 0 },
+  { entrada: [[1, 1, 1]], esperado: 0 },
+  { entrada: [[1, 2, 1, 2, 1]], esperado: 3 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: contar los bumeranes del array del enunciado.
+export const demo = (bumeranes) => bumeranes([2, 1, 2, 3, 3, 4, 2, 4]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

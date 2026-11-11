@@ -11,14 +11,11 @@ o quizás quieres dar tus primeros pasos... ¡Pues este es el momento!
 
 A ver quién se atreve con uno de esos lenguajes que no solemos ver por ahí...`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: reto creativo/showcase ("¡Hola Mundo!" en tantos lenguajes como
+// quieras), sin una salida fija que comparar.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: muestra el saludo en todos los lenguajes que puedas.
+export const demo = (holaMundo) => holaMundo() ?? '¡Hola Mundo! (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -10,14 +10,18 @@ y Hexadecimal.
 - No está permitido usar funciones propias del lenguaje de programación que
 realicen esas operaciones directamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado pide transformar a Octal Y Hexadecimal: se devuelven los dos
+// resultados en un único objeto. Sin prefijos ("0o"/"0x") y el hexadecimal
+// en mayúsculas.
+export const casos = [
+  { entrada: [0], esperado: { octal: '0', hexadecimal: '0' } },
+  { entrada: [8], esperado: { octal: '10', hexadecimal: '8' } },
+  { entrada: [15], esperado: { octal: '17', hexadecimal: 'F' } },
+  { entrada: [255], esperado: { octal: '377', hexadecimal: 'FF' } },
+  { entrada: [1000], esperado: { octal: '1750', hexadecimal: '3E8' } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: convertir el año del reto (2023)
+export const demo = (conversion) => conversion(2023);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

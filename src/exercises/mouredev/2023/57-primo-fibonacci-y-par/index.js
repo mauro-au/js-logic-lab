@@ -11,14 +11,17 @@ Ejemplos:
 - Con el número 2, nos dirá: "2 es primo, fibonacci y es par"
 - Con el número 7, nos dirá: "7 es primo, no es fibonacci y es impar"`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El reto pide tres comprobaciones a la vez, así que devolvemos un único objeto
+// con los tres resultados (primo, fibonacci y par) para el número recibido.
+export const casos = [
+  { entrada: [2], esperado: { primo: true, fibonacci: true, par: true } }, // ejemplo
+  { entrada: [7], esperado: { primo: true, fibonacci: false, par: false } }, // ejemplo
+  { entrada: [4], esperado: { primo: false, fibonacci: false, par: true } },
+  { entrada: [8], esperado: { primo: false, fibonacci: true, par: true } },
+  { entrada: [13], esperado: { primo: true, fibonacci: true, par: false } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: un número que es primo y fibonacci a la vez (89).
+export const demo = (comprobar) => comprobar(89);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

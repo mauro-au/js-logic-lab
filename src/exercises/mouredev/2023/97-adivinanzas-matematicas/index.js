@@ -19,14 +19,14 @@ el resultado de diferentes operaciones matemáticas aleatorias
   - Preguntas 16 a 20: XXX (entre 0 y 999) operación YY
   ..`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: juego interactivo con operaciones aleatorias, límite de 3 s y
+// finalización por tiempo → sin valor esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: arranca la partida; las preguntas se verán en la terminal.
+export const demo = (juego) => {
+  juego();
+  return '🔢 Juego de adivinanzas iniciado';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

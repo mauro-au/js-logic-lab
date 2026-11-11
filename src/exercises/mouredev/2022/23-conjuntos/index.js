@@ -13,14 +13,17 @@ export const enunciado = `Crea una función que reciba dos array, un booleano y 
 - No se pueden utilizar operaciones del lenguaje que
   lo resuelvan directamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: (array1, array2, booleano) → array; true = comunes, false = no comunes.
+export const casos = [
+  { entrada: [[1, 2, 3], [2, 3, 4], true], esperado: [2, 3] },
+  { entrada: [[1, 2], [3, 4], true], esperado: [] },
+  { entrada: [['a', 'b'], ['b', 'c'], true], esperado: ['b'] },
+  { entrada: [[1, 2], [1, 2, 3], false], esperado: [3] },
+  { entrada: [[5, 7], [5, 7, 9], false], esperado: [9] },
+  { entrada: [[1, 2], [1, 2], false], esperado: [] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: elementos comunes de dos listas.
+export const demo = (conjuntos) => conjuntos([1, 2, 3, 4, 5], [4, 5, 6, 7], true);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

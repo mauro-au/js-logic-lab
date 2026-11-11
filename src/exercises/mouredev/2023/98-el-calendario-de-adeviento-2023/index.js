@@ -22,14 +22,14 @@ Crea un programa que simule el mecanismo de participación:
   y se eliminará del listado.
 - Si seleccionas salir, el programa finalizará.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: menú interactivo por terminal y sorteo aleatorio → sin valor
+// esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: abre el programa de participación; el menú se verá en la terminal.
+export const demo = (calendario) => {
+  calendario();
+  return '🎄 aDEViento: programa iniciado';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

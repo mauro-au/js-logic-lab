@@ -10,14 +10,18 @@ teniendo en cuenta su nombre.
 - Las columnas se designan por letras de la "A" a la "Z" de forma infinita.
 - Ejemplos: A = 1, Z = 26, AA = 27, CA = 79.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe el nombre de la columna (letras de la A a la Z) y
+// retorna su número.
+export const casos = [
+  { entrada: ['A'], esperado: 1 },
+  { entrada: ['Z'], esperado: 26 },
+  { entrada: ['AA'], esperado: 27 },
+  { entrada: ['AB'], esperado: 28 },
+  { entrada: ['CA'], esperado: 79 },
+  { entrada: ['ZZ'], esperado: 702 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: calcular el número de la columna "JS".
+export const demo = (columna) => columna('JS');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

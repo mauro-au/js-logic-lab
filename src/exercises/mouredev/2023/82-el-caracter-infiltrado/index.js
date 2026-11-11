@@ -17,14 +17,18 @@ Ejemplos:
 - Me llamo mouredev / Me llemo mouredov -> ["e", "o"]
 - Me llamo.Brais Moure / Me llamo brais moure -> [" ", "b", "m"]`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe las dos cadenas y retorna los caracteres distintos de la
+// SEGUNDA (los infiltrados), como muestran los ejemplos del enunciado.
+export const casos = [
+  { entrada: ['Me llamo mouredev', 'Me llemo mouredov'], esperado: ['e', 'o'] },
+  { entrada: ['Me llamo.Brais Moure', 'Me llamo brais moure'], esperado: [' ', 'b', 'm'] },
+  { entrada: ['hola', 'hola'], esperado: [] },
+  { entrada: ['abc', 'axc'], esperado: ['x'] },
+  { entrada: ['perro', 'porro'], esperado: ['o'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: hallar los caracteres infiltrados del primer ejemplo.
+export const demo = (infiltrado) =>
+  infiltrado('Me llamo mouredev', 'Me llemo mouredov');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

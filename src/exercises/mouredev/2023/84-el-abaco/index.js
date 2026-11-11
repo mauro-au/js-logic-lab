@@ -24,14 +24,69 @@ Ejemplo de array y resultado:
 
  Resultado: 1.302.790`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe el ábaco (7 filas) y retorna el número como texto con
+// puntos de miles, como el "Resultado: 1.302.790" del enunciado.
+export const casos = [
+  {
+    entrada: [[
+      'O---OOOOOOOO',
+      'OOO---OOOOOO',
+      '---OOOOOOOOO',
+      'OO---OOOOOOO',
+      'OOOOOOO---OO',
+      'OOOOOOOOO---',
+      '---OOOOOOOOO',
+    ]],
+    esperado: '1.302.790', // ejemplo del enunciado
+  },
+  {
+    entrada: [[
+      'O---OOOOOOOO',
+      'OO---OOOOOOO',
+      'OOO---OOOOOO',
+      'OOOO---OOOOO',
+      'OOOOO---OOOO',
+      'OOOOOO---OOO',
+      'OOOOOOO---OO',
+    ]],
+    esperado: '1.234.567',
+  },
+  {
+    entrada: [[
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+      'OOOOOOOOO---',
+    ]],
+    esperado: '9.999.999',
+  },
+  {
+    entrada: [[
+      'O---OOOOOOOO',
+      '---OOOOOOOOO',
+      '---OOOOOOOOO',
+      '---OOOOOOOOO',
+      '---OOOOOOOOO',
+      '---OOOOOOOOO',
+      '---OOOOOOOOO',
+    ]],
+    esperado: '1.000.000',
+  },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: leer el ábaco del ejemplo del enunciado.
+export const demo = (abaco) =>
+  abaco([
+    'O---OOOOOOOO',
+    'OOO---OOOOOO',
+    '---OOOOOOOOO',
+    'OO---OOOOOOO',
+    'OOOOOOO---OO',
+    'OOOOOOOOO---',
+    '---OOOOOOOOO',
+  ]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

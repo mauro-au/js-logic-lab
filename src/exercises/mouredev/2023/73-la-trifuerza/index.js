@@ -19,14 +19,29 @@ Ejemplo: Trifuerza 2
  *   *
 *** ***`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El dibujo se devuelve como array de líneas recortadas a la derecha (sin
+// espacios finales), como en el ejemplo: son 2n filas, las n primeras del
+// triángulo superior centrado y las n últimas con los dos triángulos de
+// abajo separados por un espacio.
+export const casos = [
+  { entrada: [2], esperado: [
+    '   *',
+    '  ***',
+    ' *   *',
+    '*** ***',
+  ] },
+  { entrada: [1], esperado: [' *', '* *'] },
+  { entrada: [3], esperado: [
+    '     *',
+    '    ***',
+    '   *****',
+    '  *     *',
+    ' ***   ***',
+    '***** *****',
+  ] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: la Trifuerza con 4 filas por triángulo
+export const demo = (trifuerza) => trifuerza(4);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

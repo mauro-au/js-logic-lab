@@ -16,14 +16,29 @@ Ejemplo espiral de lado 5 (5 filas y 5 columnas):
 ║╚═╝║
 ╚═══╝`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El dibujo se devuelve como array de líneas. La espiral arranca en la
+// esquina superior izquierda hacia la derecha y gira en sentido horario
+// hacia dentro; la última celda conserva la esquina del giro intentado
+// (igual que el centro del ejemplo de lado 5).
+export const casos = [
+  { entrada: [5], esperado: [
+    '════╗',
+    '╔══╗║',
+    '║╔╗║║',
+    '║╚═╝║',
+    '╚═══╝',
+  ] },
+  { entrada: [4], esperado: [
+    '═══╗',
+    '╔═╗║',
+    '║╚╝║',
+    '╚══╝',
+  ] },
+  { entrada: [3], esperado: ['══╗', '╔╗║', '╚═╝'] },
+  { entrada: [2], esperado: ['═╗', '╚╝'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: la espiral de lado 5 del ejemplo
+export const demo = (espiral) => espiral(5);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

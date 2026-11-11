@@ -14,14 +14,33 @@ papel, tijera, lagarto, spock.
 - Ejemplo. Entrada: [("🗿","✂️"), ("✂️","🗿"), ("📄","✂️")]. Resultado: "Player 2".
 - Debes buscar información sobre cómo se juega con estas 5 posibilidades.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// La función recibe UN solo argumento: el listado de pares de jugada
+// (cada par = [jugada del P1, jugada del P2]) y retorna quién gana más partidas.
+export const casos = [
+  { // ejemplo del enunciado
+    entrada: [[['🗿', '✂️'], ['✂️', '🗿'], ['📄', '✂️']]],
+    esperado: 'Player 2',
+  },
+  { // la tijera corta el papel
+    entrada: [[['✂️', '📄']]],
+    esperado: 'Player 1',
+  },
+  { // dos empates
+    entrada: [[['🗿', '🗿'], ['🦎', '🦎']]],
+    esperado: 'Tie',
+  },
+  { // Spock vaporiza la piedra
+    entrada: [[['🖖', '🗿']]],
+    esperado: 'Player 1',
+  },
+  { // el lagarto envenena a Spock
+    entrada: [[['🦎', '🖖']]],
+    esperado: 'Player 1',
+  },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: una partida completa de 5 rondas.
+export const demo = (gana) =>
+  gana([['🗿', '✂️'], ['✂️', '📄'], ['📄', '🗿'], ['🦎', '🖖'], ['🖖', '🗿']]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

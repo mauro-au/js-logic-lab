@@ -15,14 +15,18 @@ y retorne lo siguiente:
 Nota: La matriz puede no estar totalmente cubierta.
 Se podría representar con un vacío "", por ejemplo.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe la matriz 3x3 y retorna "X", "O", "Empate" o "Nulo".
+export const casos = [
+  { entrada: [[['X', 'X', 'X'], ['O', 'O', ''], ['O', '', 'X']]], esperado: 'X' },
+  { entrada: [[['X', 'X', 'O'], ['X', 'O', ''], ['O', '', '']]], esperado: 'O' },
+  { entrada: [[['X', 'O', 'X'], ['X', 'O', 'O'], ['O', 'X', 'X']]], esperado: 'Empate' },
+  { entrada: [[['X', '', ''], ['O', '', ''], ['O', '', '']]], esperado: 'Nulo' }, // proporción incorrecta: hay más "O" que "X"
+  { entrada: [[['X', 'O', 'X'], ['O', 'X']]], esperado: 'Nulo' }, // la matriz no es 3x3
+  { entrada: [[['X', 'X', 'X'], ['O', 'O', 'O'], ['X', '', '']]], esperado: 'Nulo' }, // han ganado los dos
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: analizar un tablero donde las "X" completan la primera fila.
+export const demo = (tresEnRaya) =>
+  tresEnRaya([['X', 'X', 'X'], ['O', 'O', ''], ['O', '', 'X']]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

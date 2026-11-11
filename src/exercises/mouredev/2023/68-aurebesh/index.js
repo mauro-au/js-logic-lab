@@ -14,14 +14,11 @@ del universo Star Wars: el "Aurebesh".
 
 ¡Que la fuerza os acompañe!`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: el alfabeto Aurebesh no tiene representación canónica en texto
+// plano (cada solución define su mapa de glifos), no hay un valor esperado fijo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: traduce "hola" de Español a Aurebesh (por defecto).
+export const demo = (aurebesh) => aurebesh('hola');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

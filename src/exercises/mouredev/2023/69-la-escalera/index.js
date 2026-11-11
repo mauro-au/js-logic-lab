@@ -17,14 +17,24 @@ Ejemplo: 4
   _|
 _|`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El dibujo se devuelve como array de líneas (una por fila), que se lee mejor
+// en la terminal que un string con \n. Un positivo n dibuja n+1 filas (la
+// superior solo con "_"); un negativo dibuja las mismas filas invertidas;
+// cero son dos guiones bajos.
+export const casos = [
+  { entrada: [4], esperado: [
+    '        _',
+    '      _|',
+    '    _|',
+    '  _|',
+    '_|',
+  ] },
+  { entrada: [2], esperado: ['    _', '  _|', '_|'] },
+  { entrada: [-2], esperado: ['_|', '  _|', '    _'] },
+  { entrada: [0], esperado: ['__'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: escalera ascendente de 5 escalones
+export const demo = (escalera) => escalera(5);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

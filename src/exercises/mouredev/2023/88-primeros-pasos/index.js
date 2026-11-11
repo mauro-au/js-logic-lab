@@ -32,14 +32,14 @@ de sintaxis básica de muchos lenguajes.
 
 ¡Muchas gracias!`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: reto creativo/showcase (mostrar la sintaxis básica de todos los
+// lenguajes en un fichero) → sin valor esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: muestra la sintaxis básica; los ejemplos se verán en la terminal.
+export const demo = (primerosPasos) => {
+  primerosPasos();
+  return '🚀 Primeros pasos: sintaxis básica mostrada';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

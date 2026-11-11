@@ -15,14 +15,18 @@ y animal correspondiente en el ciclo sexagenario del zodíaco chino.
 - Cada elemento se repite dos años seguidos.
 - El último ciclo sexagenario comenzó en 1984 (Madera Rata).`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El ejercicio pide dos valores (elemento y animal): los devolvemos en un objeto.
+// El ciclo arranca en 1984 (Madera Rata) y se repite cada 60 años.
+export const casos = [
+  { entrada: [1984], esperado: { elemento: 'Madera', animal: 'Rata' } }, // inicio del ciclo
+  { entrada: [1985], esperado: { elemento: 'Madera', animal: 'Buey' } },
+  { entrada: [1986], esperado: { elemento: 'Fuego', animal: 'Tigre' } },
+  { entrada: [1900], esperado: { elemento: 'Metal', animal: 'Rata' } },
+  { entrada: [2023], esperado: { elemento: 'Agua', animal: 'Conejo' } },
+  { entrada: [2024], esperado: { elemento: 'Madera', animal: 'Dragón' } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el elemento y animal de 2024
+export const demo = (ciclo) => ciclo(2024);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

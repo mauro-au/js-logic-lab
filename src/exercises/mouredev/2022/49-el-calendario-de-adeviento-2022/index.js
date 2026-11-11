@@ -22,14 +22,11 @@ Notas:
 - Debemos trabajar con fechas que tengan año, mes, día, horas, minutos
   y segundos.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: el regalo de cada día es a elección de cada solución y los tiempos
+// dependen de la fecha recibida, así que no hay un valor esperado fijo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: consultar un día dentro del calendario de aDEViento 2022.
+export const demo = (adviento) => adviento(new Date(2022, 11, 5, 12, 0, 0));
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

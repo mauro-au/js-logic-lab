@@ -18,14 +18,11 @@ Una vez realices la conexión, lanza la siguiente consulta e imprime el resultad
 
 Se pueden usar librerías para realizar la lógica de conexión a la base de datos.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: la consulta depende de una base de datos MySQL remota, no hay
+// un valor esperado fijo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: conecta a la BD y ejecuta SELECT * FROM `challenges`.
+export const demo = (baseDatos) => baseDatos();
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

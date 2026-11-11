@@ -29,14 +29,14 @@ Se trata de implementar un juego interactivo de preguntas y respuestas por termi
 - 👻 (Bonus) Fantasmas: Existe un 10% de que en una habitación aparezca un fantasma y
   tengas que responder dos preguntas para salir de ella.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: juego interactivo y aleatorio (enigmas y fantasmas al azar),
+// sin valor esperado fijo → modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: arranca la partida; el texto del juego se verá en la terminal.
+export const demo = (casa) => {
+  casa();
+  return '🏰 Mansión 4x4: partida iniciada';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

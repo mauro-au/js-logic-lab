@@ -9,14 +9,19 @@ export const enunciado = `Crea 3 funciones, cada una encargada de detectar si un
 texto es un heterograma, un isograma o un pangrama.
 - Debes buscar la definición de cada uno de estos términos.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El reto pide 3 funciones, así que devolvemos un único objeto con los tres
+// resultados para la cadena recibida. Definiciones: heterograma = sin letras
+// repetidas; isograma = todas las letras con la misma frecuencia;
+// pangrama = contiene todas las letras del alfabeto.
+export const casos = [
+  { entrada: ['murciélago'], esperado: { heterograma: true, isograma: true, pangrama: false } },
+  { entrada: ['casa'], esperado: { heterograma: false, isograma: false, pangrama: false } },
+  { entrada: ['abcdefghijklmnopqrstuvwxyz'], esperado: { heterograma: true, isograma: true, pangrama: true } },
+  { entrada: ['Packed my box with five dozen liquor jugs'], esperado: { heterograma: false, isograma: false, pangrama: true } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: comprueba un pangrama clásico del español.
+export const demo = (comprobar) =>
+  comprobar('Quiere la boca exhausta vid, kiwi, piña y fugaz jamón.');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -9,14 +9,17 @@ export const enunciado = `Crea una función que sea capaz de encriptar y desencr
 utilizando el algoritmo de encriptación de Karaca
 (debes buscar información sobre él).`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El ejercicio pide encriptar y desencriptar: un primer parámetro con la acción
+// ('encriptar' | 'desencriptar') y en segundo lugar el texto.
+export const casos = [
+  { entrada: ['encriptar', 'casa'], esperado: '0s0caca' },
+  { entrada: ['desencriptar', '0s0caca'], esperado: 'casa' },
+  { entrada: ['encriptar', 'hola'], esperado: '0l3haca' },
+  { entrada: ['desencriptar', '0l3haca'], esperado: 'hola' },
+  { entrada: ['encriptar', 'javascript'], esperado: 'tp2rcs0v0jaca' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: encriptar "mouredev" con el algoritmo de Karaca.
+export const demo = (karaca) => karaca('encriptar', 'mouredev');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -12,14 +12,18 @@ y viceversa.
   y su unidad ("C" o "F").
 - En caso contrario retornará un error.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El resultado conserva el formato de la entrada: número + ° + nueva unidad.
+export const casos = [
+  { entrada: ['25°C'], esperado: '77°F' },
+  { entrada: ['0°C'], esperado: '32°F' },
+  { entrada: ['212°F'], esperado: '100°C' },
+  { entrada: ['32°F'], esperado: '0°C' },
+  { entrada: ['77°F'], esperado: '25°C' },
+  // El enunciado pide retornar un error con la entrada inválida.
+  { entrada: ['25 grados'], esperado: 'Error' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: convertir el punto de ebullición de 100 °C.
+export const demo = (convertir) => convertir('100°C');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

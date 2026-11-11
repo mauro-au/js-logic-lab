@@ -17,14 +17,14 @@ IMPORTANTE: El fichero TXT NO debe subirse como parte de la corrección.
 - Si se selecciona continuar escribiendo, se tiene que mostrar por consola
   el texto que ya posee el fichero.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: crea y escribe un fichero externo ("text.txt") con entrada por
+// consola → sin valor esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: inicia la interacción con el fichero; lo que se escriba se verá en la terminal.
+export const demo = (txt) => {
+  txt();
+  return '📄 Interacción con "text.txt" iniciada';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

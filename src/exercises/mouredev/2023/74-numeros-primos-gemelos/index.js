@@ -15,14 +15,16 @@ El programa recibirá el rango máximo como número entero positivo.
 - Ejemplo: Rango 14
   (3, 5), (5, 7), (11, 13)`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Cada par se devuelve como array [menor, mayor], en orden ascendente y con
+// ambos primos dentro del rango máximo recibido.
+export const casos = [
+  { entrada: [1], esperado: [] },
+  { entrada: [5], esperado: [[3, 5]] },
+  { entrada: [14], esperado: [[3, 5], [5, 7], [11, 13]] },
+  { entrada: [20], esperado: [[3, 5], [5, 7], [11, 13], [17, 19]] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: todos los primos gemelos hasta 50
+export const demo = (gemelos) => gemelos(50);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

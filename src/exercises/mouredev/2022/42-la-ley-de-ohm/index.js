@@ -12,14 +12,16 @@ correspondiente a la ley de Ohm.
 - Si los parámetros son incorrectos o insuficientes, la función retornará
   la cadena de texto "Invalid values".`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Los tres parámetros van en orden (V, R, I); el que no conocemos se envía como null.
+export const casos = [
+  { entrada: [10, null, 2], esperado: 5 },
+  { entrada: [null, 10, 2], esperado: 20 },
+  { entrada: [20, 5, null], esperado: 4 },
+  { entrada: [10, null, 3], esperado: 3.33 },
+  { entrada: [5, null, null], esperado: 'Invalid values' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: calcular la tensión de un circuito de 8 Ω y 0,5 A.
+export const demo = (leyOhm) => leyOhm(null, 8, 0.5);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

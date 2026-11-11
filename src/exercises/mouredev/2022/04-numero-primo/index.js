@@ -9,7 +9,7 @@ export const enunciado = `Escribe un programa que se encargue de comprobar si un
 Hecho esto, imprime los números primos entre 1 y 100.
 - Un número primo es un número natural mayor que 1 que solo es divisible por 1 y por sí mismo.`;
 
-const casos = [
+export const casos = [
   { entrada: [-7], esperado: false },
   { entrada: [0], esperado: false },
   { entrada: [1], esperado: false },
@@ -23,7 +23,7 @@ const casos = [
 ];
 
 // Reto principal: primos entre 1 y 100 usando cada solución
-const demo = (esPrimo) =>
+export const demo = (esPrimo) =>
   Array.from({ length: 100 }, (_, i) => i + 1).filter((n) => esPrimo(n));
 
 export const ejecutar = crearEjecutor({ soluciones, casos, demo });

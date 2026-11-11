@@ -10,14 +10,16 @@ que calcule el mínimo común múltiplo (mcm) de dos números enteros.
 - No se pueden utilizar operaciones del lenguaje que
   lo resuelvan directamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El ejercicio pide dos funciones (MCD y mcm): devolvemos ambas en un objeto.
+export const casos = [
+  { entrada: [12, 18], esperado: { mcd: 6, mcm: 36 } },
+  { entrada: [15, 25], esperado: { mcd: 5, mcm: 75 } },
+  { entrada: [7, 13], esperado: { mcd: 1, mcm: 91 } },
+  { entrada: [8, 12], esperado: { mcd: 4, mcm: 24 } },
+  { entrada: [100, 10], esperado: { mcd: 10, mcm: 100 } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: MCD y mcm de 48 y 18.
+export const demo = (mcdYmcm) => mcdYmcm(48, 18);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

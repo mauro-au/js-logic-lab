@@ -10,7 +10,7 @@ export const enunciado = `Escribe una función que reciba dos palabras (String) 
 - NO hace falta comprobar que ambas palabras existan.
 - Dos palabras exactamente iguales no son anagramas.`;
 
-const casos = [
+export const casos = [
   { entrada: ['amor', 'roma'], esperado: true },
   { entrada: ['listen', 'silent'], esperado: true },
   { entrada: ['hola', 'hola'], esperado: false }, // iguales: no cuentan
@@ -18,4 +18,7 @@ const casos = [
   { entrada: ['abc', 'ab'], esperado: false }, // distinta longitud
 ];
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+// Reto principal: el anagrama clásico de la consigna
+export const demo = (anagrama) => anagrama('amor', 'roma');
+
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -12,14 +12,15 @@ export const enunciado = `Crea una función que reciba dos parámetros para crea
 - El programa finaliza al llegar a cero.
 - Debes imprimir cada número de la cuenta atrás.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe (inicio, segundos) y retorna la lista de números que
+// imprime. El enunciado pide imprimirlos; los retornamos para poder compararlos.
+export const casos = [
+  { entrada: [1, 1], esperado: [1, 0] },
+  { entrada: [3, 1], esperado: [3, 2, 1, 0] },
+  { entrada: [5, 1], esperado: [5, 4, 3, 2, 1, 0] }, // incluye el 0: finaliza al llegar a cero
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: cuenta atrás del 5 al 0 (cada número también sale en la terminal).
+export const demo = (cuentaAtras) => cuentaAtras(5, 1);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -13,14 +13,20 @@ Debes crear una expresión regular para cada caso:
 - Handle web: Los que comienzan por "www.", "http://", "https://"
   y finalizan con un dominio (.com, .es...)`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Un único array con todos los handles, en orden de aparición en el texto.
+export const casos = [
+  {
+    entrada: ['Hola @mouredev visita https://mouredev.com y #javascript'],
+    esperado: ['@mouredev', 'https://mouredev.com', '#javascript'],
+  },
+  { entrada: ['Sin handles en este texto'], esperado: [] },
+  { entrada: ['@ana y @luis son @amigos'], esperado: ['@ana', '@luis', '@amigos'] },
+  { entrada: ['www.ejemplo.es es una web'], esperado: ['www.ejemplo.es'] },
+  { entrada: ['http://foo.com'], esperado: ['http://foo.com'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: extraer los handles de un texto con todo mezclado.
+export const demo = (detectarHandles) =>
+  detectarHandles('@mouredev publica en https://mouredev.com sobre #JavaScript cada día');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

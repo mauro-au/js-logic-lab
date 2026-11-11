@@ -23,14 +23,14 @@ uno de ellos (o los dos a la vez) llega a la meta.
   - Cada turno se imprimen las pistas y sus elementos.
   - Cuando la carrera finalice, se muestra el coche ganador o el empate.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: árboles y avances aleatorios por turnos → sin valor esperado
+// fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: carrera con pistas de 10 posiciones; las tiradas se verán en la terminal.
+export const demo = (carrera) => {
+  carrera(10);
+  return '🏁 Carrera de 10 posiciones iniciada';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

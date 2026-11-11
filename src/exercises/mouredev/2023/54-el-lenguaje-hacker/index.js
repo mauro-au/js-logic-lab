@@ -12,14 +12,16 @@ export const enunciado = `Escribe un programa que reciba un texto y transforme l
   con el alfabeto y los números en "leet".
   (Usa la primera opción de cada transformación. Por ejemplo "4" para la "a")`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Traducción "natural → leet" con la PRIMERA opción de cada letra según la
+// tabla del enunciado (p. ej. "a" → "4"); espacios y signos se conservan.
+export const casos = [
+  { entrada: ['a'], esperado: '4' },
+  { entrada: ['leet'], esperado: '1337' },
+  { entrada: ['hola'], esperado: '#014' },
+  { entrada: ['hola, mundo!'], esperado: '#014, /\\/\\(_)^/)0!' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: traduce una frase al lenguaje hacker.
+export const demo = (leet) => leet('el lenguaje hacker');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

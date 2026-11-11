@@ -14,14 +14,19 @@ de una expresión están equilibrados.
 - Expresión balanceada: { [ a * ( c + d ) ] - 5 }
 - Expresión no balanceada: { a * ( c + d ) ] - 5 }`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+export const casos = [
+  { entrada: ['{ [ a * ( c + d ) ] - 5 }'], esperado: true }, // balanceada (enunciado)
+  { entrada: ['{ a * ( c + d ) ] - 5 }'], esperado: false }, // no balanceada (enunciado)
+  { entrada: [''], esperado: true },
+  { entrada: ['([{}])'], esperado: true },
+  { entrada: ['([)]'], esperado: false },
+  { entrada: ['{'], esperado: false },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: comprobar las dos expresiones del enunciado
+export const demo = (equilibrada) => [
+  equilibrada('{ [ a * ( c + d ) ] - 5 }'),
+  equilibrada('{ a * ( c + d ) ] - 5 }'),
+];
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

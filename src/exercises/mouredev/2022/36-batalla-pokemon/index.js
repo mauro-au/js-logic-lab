@@ -17,14 +17,18 @@ una batalla Pokémon.
  - Ataque: Entre 1 y 100.
  - Defensa: Entre 1 y 100.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// entrada = [tipoAtacante, tipoDefensor, ataque, defensa]; retorna el daño.
+// Todos los casos usan valores que la fórmula da exactos (sin decimales raros).
+export const casos = [
+  { entrada: ['Agua', 'Fuego', 100, 50], esperado: 200 }, // súper efectivo
+  { entrada: ['Agua', 'Planta', 50, 100], esperado: 12.5 }, // no muy efectivo
+  { entrada: ['Fuego', 'Agua', 50, 50], esperado: 25 }, // no muy efectivo
+  { entrada: ['Eléctrico', 'Planta', 100, 100], esperado: 25 }, // no muy efectivo
+  { entrada: ['Planta', 'Fuego', 60, 30], esperado: 50 }, // no muy efectivo
+  { entrada: ['Fuego', 'Eléctrico', 40, 80], esperado: 25 }, // neutral
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: ataque súper efectivo con ataque y defensa extremos
+export const demo = (batalla) => batalla('Agua', 'Fuego', 100, 50);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

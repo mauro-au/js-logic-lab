@@ -9,14 +9,12 @@ export const enunciado = `Crea un programa que dibuje un cuadrado o un triángul
 - Indicaremos el tamaño del lado y si la figura a dibujar es una u otra.
 - EXTRA: ¿Eres capaz de dibujar más figuras?`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: reto creativo de dibujo; el enunciado no fija si la figura se retorna
+// o se imprime, ni el estilo del triángulo, así que no hay un esperado único.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: dibujar un cuadrado de lado 4 (la figura sale en la terminal).
+export const demo = (dibujar) =>
+  dibujar(4, 'cuadrado') ?? 'cuadrado de lado 4 (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

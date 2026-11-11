@@ -16,14 +16,24 @@ formando un marco rectangular de asteriscos.
   * reto?  *
   **********`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado pide "mostrar" el marco: lo devolvemos como array de líneas
+// (una por fila) porque se lee mejor en la terminal que un string con \n.
+export const casos = [
+  { entrada: ['¿Qué te parece el reto?'], esperado: [
+    '**********',
+    '* ¿Qué   *',
+    '* te     *',
+    '* parece *',
+    '* el     *',
+    '* reto?  *',
+    '**********',
+  ] },
+  { entrada: ['hola mundo'], esperado: ['*********', '* hola  *', '* mundo *', '*********'] },
+  { entrada: ['sol y luna'], esperado: ['********', '* sol  *', '* y    *', '* luna *', '********'] },
+  { entrada: ['uno'], esperado: ['*******', '* uno *', '*******'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el marco del ejemplo del enunciado
+export const demo = (marco) => marco('¿Qué te parece el reto?');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

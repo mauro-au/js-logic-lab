@@ -11,14 +11,13 @@ export const enunciado = `Crea un generador de números pseudoaleatorios entre 0
 
 Es más complicado de lo que parece...`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: la secuencia generada es distinta en cada ejecución (no se puede
+// usar random, pero cada solución elige su propio algoritmo), así que no hay
+// un número esperado fijo. Corre en modo libre con solo la demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: genera un número con la semilla 2023.
+export const demo = (pseudoaleatorio) =>
+  pseudoaleatorio(2023) ?? 'número generado (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

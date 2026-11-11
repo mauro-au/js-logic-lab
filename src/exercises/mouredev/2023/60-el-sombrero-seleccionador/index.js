@@ -16,14 +16,12 @@ universo mágico de Harry Potter.
   y crear el algoritmo seleccionador:
   Por ejemplo, en Slytherin se premia la ambición y la astucia.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: programa interactivo por terminal (mínimo 5 preguntas de 4
+// respuestas) y el algoritmo de casas lo diseña cada solución, así que no hay
+// un valor esperado fijo. Corre en modo libre con solo la demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el sombrero decide la casa del alumno.
+export const demo = (sombrero) => sombrero() ?? 'casa asignada (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

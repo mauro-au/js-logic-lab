@@ -12,14 +12,14 @@ imagen a partir de una url.
 - Por ratio hacemos referencia por ejemplo a los "16:9" de una
   imagen de 1920*1080px.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: el cálculo descarga la imagen de la url (red), así que no hay un
+// esperado fijo reproducible. Corre en modo libre con solo la demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: aspect ratio de la imagen de ejemplo del enunciado
+export const demo = (aspectRatio) =>
+  aspectRatio(
+    'https://raw.githubusercontent.com/mouredevmouredev/master/mouredev_github_profile.png'
+  );
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

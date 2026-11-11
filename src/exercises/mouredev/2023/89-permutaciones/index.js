@@ -11,14 +11,17 @@ permutaciones disponibles formadas por las letras de una palabra.
 - Deben usarse todas las letras en cada permutación.
 - Ejemplo: sol, slo, ols, osl, los, lso`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe la palabra y retorna todas las permutaciones en un array.
+// El enunciado pide imprimirlas; las retornamos para poder compararlas.
+// Orden: el del ejemplo ("sol, slo, ols, osl, los, lso"), letra a letra.
+export const casos = [
+  { entrada: ['sol'], esperado: ['sol', 'slo', 'ols', 'osl', 'los', 'lso'] }, // ejemplo
+  { entrada: ['a'], esperado: ['a'] },
+  { entrada: ['ab'], esperado: ['ab', 'ba'] },
+  { entrada: ['abc'], esperado: ['abc', 'acb', 'bac', 'bca', 'cab', 'cba'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: todas las permutaciones de "sol".
+export const demo = (permutaciones) => permutaciones('sol');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

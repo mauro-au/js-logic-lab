@@ -13,14 +13,17 @@ papel, tijera.
   o "S" (tijera).
 - Ejemplo. Entrada: [("R","S"), ("S","R"), ("P","S")]. Resultado: "Player 2".`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: un único array de pares [["R","P","S"], ["R","P","S"]] → el ganador.
+export const casos = [
+  { entrada: [[['R', 'S'], ['S', 'R'], ['P', 'S']]], esperado: 'Player 2' }, // ejemplo del enunciado
+  { entrada: [[['R', 'S'], ['S', 'P'], ['P', 'R']]], esperado: 'Player 1' },
+  { entrada: [[['R', 'R'], ['P', 'P'], ['S', 'S']]], esperado: 'Tie' },
+  { entrada: [[['S', 'R'], ['R', 'P']]], esperado: 'Player 2' },
+  { entrada: [[['R', 'S'], ['P', 'S']]], esperado: 'Tie' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: la partida de ejemplo del enunciado.
+export const demo = (piedraPapelTijera) =>
+  piedraPapelTijera([['R', 'S'], ['S', 'R'], ['P', 'S']]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

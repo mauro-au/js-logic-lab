@@ -16,14 +16,17 @@ de una lista que suman el valor objetivo.
   Soluciones: [1, 5] y [1, 3, 2] (ambas combinaciones suman 6)
   (Si no existen combinaciones, retornar una lista vacía)`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Orden fijo: las combinaciones se listan recorriendo la lista de izquierda a
+// derecha (como en el ejemplo del enunciado) y cada combinación conserva el
+// orden original de sus elementos.
+export const casos = [
+  { entrada: [[1, 5, 3, 2], 6], esperado: [[1, 5], [1, 3, 2]] }, // ejemplo del enunciado
+  { entrada: [[1, 2, 3], 7], esperado: [] }, // sin combinaciones posibles
+  { entrada: [[5, 1, 2], 3], esperado: [[1, 2]] },
+  { entrada: [[3, 3, 6], 12], esperado: [[3, 3, 6]] }, // lista con elementos repetidos
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el ejemplo del reto.
+export const demo = (sumas) => sumas([1, 5, 3, 2], 6);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

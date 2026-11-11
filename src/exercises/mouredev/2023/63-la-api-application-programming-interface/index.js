@@ -13,14 +13,11 @@ resultado a través de la terminal. Por ejemplo: Pokémon, Marvel...
 Aquí tienes un listado de posibles APIs:
 https://github.com/public-apis/public-apis`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: la llamada HTTP depende de la red y de la API que elija cada
+// solución, no hay un resultado reproducible. Corre en modo libre con solo la demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: llama a la API elegida y muestra su respuesta.
+export const demo = (api) => api() ?? 'respuesta de la API (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

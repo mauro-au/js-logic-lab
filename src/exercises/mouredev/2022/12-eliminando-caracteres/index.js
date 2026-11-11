@@ -12,14 +12,18 @@ e imprima otras dos cadenas como salida (out1, out2).
 - out2 contendrá todos los caracteres presentes en la str2 pero NO
   estén presentes en str1.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El ejercicio pide dos cadenas de salida (out1 y out2): las devolvemos juntas
+// en un objeto. Los casos evitan letras repetidas para que el orden de salida
+// (por aparición en cada cadena) no sea ambiguo.
+export const casos = [
+  { entrada: ['abcdefg', 'defxyz'], esperado: { out1: 'abcg', out2: 'xyz' } },
+  { entrada: ['hola', 'adios'], esperado: { out1: 'hl', out2: 'dis' } },
+  { entrada: ['abc', 'abc'], esperado: { out1: '', out2: '' } },
+  { entrada: ['123', '456'], esperado: { out1: '123', out2: '456' } },
+  { entrada: ['', 'a'], esperado: { out1: '', out2: 'a' } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: qué caracteres solo están en cada cadena
+export const demo = (eliminar) => eliminar('hola mundo', 'adios');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

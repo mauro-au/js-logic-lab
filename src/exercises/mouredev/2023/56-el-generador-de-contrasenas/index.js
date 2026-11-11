@@ -13,14 +13,13 @@ Podrás configurar generar contraseñas con los siguientes parámetros:
 - Con o sin símbolos.
 (Pudiendo combinar todos estos parámetros entre ellos)`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: las contraseñas se generan con azar (Math.random), no existe un
+// valor esperado fijo. Corre en modo libre con solo la demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: genera una contraseña de 12 caracteres con mayúsculas,
+// números y símbolos (longitud, mayúsculas, números y símbolos, en ese orden).
+export const demo = (generar) =>
+  generar(12, true, true, true) ?? 'contraseña generada (ver terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

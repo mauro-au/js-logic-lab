@@ -11,14 +11,18 @@ También debe ser capaz de descifrarlo cuando así se lo indiquemos.
 Te recomiendo que busques información para conocer en profundidad cómo
 realizar el cifrado. Esto también forma parte del reto.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado pide "imprimir": lo modelamos retornando el texto. Contrato:
+// (texto, desplazamiento, descifrar). Solo se desplazan las letras A-Z
+// conservando mayúsculas y minúsculas; números, espacios y signos no cambian.
+export const casos = [
+  { entrada: ['abc', 3], esperado: 'def' },
+  { entrada: ['xyz', 3], esperado: 'abc' },
+  { entrada: ['Hola, Mundo 2026!', 3], esperado: 'Krod, Pxqgr 2026!' },
+  { entrada: ['def', 3, true], esperado: 'abc' },
+  { entrada: ['Krod Pxqgr', 3, true], esperado: 'Hola Mundo' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: cifra el título del juego de Zelda
+export const demo = (cesar) => cesar('Zelda Tears of the Kingdom', 3);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

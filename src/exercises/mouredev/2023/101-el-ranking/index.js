@@ -19,14 +19,25 @@ de este año.
 Muchísimas gracias por ayudar a crear este gran recurso
 para la comunidad... ¡Prepárate para 2024!`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// La función recibe la lista de correcciones enviadas ([{ usuario, reto }]) y
+// retorna el listado ordenado por ejercicios resueltos (distintos, de mayor a
+// menor) junto a los totales; "correcciones" cuenta envíos, repeticiones incluidas.
+export const casos = [
+  { entrada: [[{ usuario: 'ana', reto: 1 }, { usuario: 'ana', reto: 2 }, { usuario: 'bru', reto: 1 }]], esperado: { ranking: [{ usuario: 'ana', ejercicios: 2 }, { usuario: 'bru', ejercicios: 1 }], usuarios: 2, correcciones: 3 } },
+  { entrada: [[{ usuario: 'ana', reto: 1 }, { usuario: 'ana', reto: 1 }, { usuario: 'ana', reto: 2 }, { usuario: 'bru', reto: 1 }]], esperado: { ranking: [{ usuario: 'ana', ejercicios: 2 }, { usuario: 'bru', ejercicios: 1 }], usuarios: 2, correcciones: 4 } },
+  { entrada: [[{ usuario: 'ana', reto: 1 }]], esperado: { ranking: [{ usuario: 'ana', ejercicios: 1 }], usuarios: 1, correcciones: 1 } },
+  { entrada: [[]], esperado: { ranking: [], usuarios: 0, correcciones: 0 } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: un listado de ejemplo con tres participantes.
+export const demo = (ranking) =>
+  ranking([
+    { usuario: 'ana', reto: 1 },
+    { usuario: 'ana', reto: 2 },
+    { usuario: 'bru', reto: 1 },
+    { usuario: 'car', reto: 1 },
+    { usuario: 'car', reto: 2 },
+    { usuario: 'car', reto: 3 },
+  ]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

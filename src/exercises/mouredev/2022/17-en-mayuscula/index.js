@@ -10,14 +10,16 @@ poner en mayúscula la primera letra de cada palabra.
 - No se pueden utilizar operaciones del lenguaje que
   lo resuelvan directamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+export const casos = [
+  { entrada: ['hola mundo'], esperado: 'Hola Mundo' },
+  { entrada: ['js logic lab'], esperado: 'Js Logic Lab' },
+  { entrada: ['el perro de san roque'], esperado: 'El Perro De San Roque' },
+  { entrada: ['hola, mundo!'], esperado: 'Hola, Mundo!' },
+  { entrada: ['a'], esperado: 'A' },
+  { entrada: [''], esperado: '' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: primera letra en mayúscula de cada palabra
+export const demo = (enMayuscula) => enMayuscula('hola mundo, este es js logic lab');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

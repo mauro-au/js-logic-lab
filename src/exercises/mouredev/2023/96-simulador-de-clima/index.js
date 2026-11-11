@@ -19,14 +19,11 @@ de un lugar ficticio al pasar un número concreto de días según estas reglas:
   y si llueve durante todos esos días.
 - También mostrará la temperatura máxima y mínima de ese periodo y cuántos días va a llover.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: la simulación depende de Math.random (10% de cambios de
+// temperatura y lluvia), así que no hay valor esperado fijo → modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: predicción de una semana con estado inicial (días, temperatura, % lluvia).
+export const demo = (clima) => clima(7, 20, 30);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

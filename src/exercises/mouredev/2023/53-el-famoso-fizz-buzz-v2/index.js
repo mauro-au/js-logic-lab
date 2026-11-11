@@ -12,14 +12,16 @@ cada impresión), sustituyendo los siguientes:
 - Múltiplos de 5 por la palabra "buzz".
 - Múltiplos de 3 y de 5 a la vez por la palabra "fizzbuzz".`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// "Mostrar por consola con saltos de línea" lo modelamos retornando la lista
+// de 1 a n (mismo contrato que el reto 01); los números van como números.
+export const casos = [
+  { entrada: [0], esperado: [] },
+  { entrada: [1], esperado: [1] },
+  { entrada: [5], esperado: [1, 2, 'fizz', 4, 'buzz'] },
+  { entrada: [15], esperado: [1, 2, 'fizz', 4, 'buzz', 'fizz', 7, 8, 'fizz', 'buzz', 11, 'fizz', 13, 14, 'fizzbuzz'] },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: los 100 números del reto.
+export const demo = (fizzBuzz) => fizzBuzz(100);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -9,14 +9,17 @@ export const enunciado = `Crea un programa que determine si dos vectores son ort
 - Los dos array deben tener la misma longitud.
 - Cada vector se podría representar como un array. Ejemplo: [1, -2]`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: (vector1, vector2) → booleano (producto escalar igual a cero).
+export const casos = [
+  { entrada: [[1, -2], [2, 1]], esperado: true },
+  { entrada: [[-1, 3], [3, 1]], esperado: true },
+  { entrada: [[1, 1], [1, -1]], esperado: true },
+  { entrada: [[1, 2], [3, 4]], esperado: false },
+  { entrada: [[2, 3], [2, 3]], esperado: false },
+  { entrada: [[1, 2, -2], [4, -1, 1]], esperado: true },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el vector de ejemplo del enunciado.
+export const demo = (ortogonales) => ortogonales([1, -2], [2, 1]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

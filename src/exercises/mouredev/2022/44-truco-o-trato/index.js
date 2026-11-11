@@ -27,14 +27,14 @@ siguiendo estos criterios:
 - Dulces: 🍰 🍬 🍡 🍭 🍪 🍫 🧁 🍩
 - En caso contrario retornará un error.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: los sustos y dulces son aleatorios, no hay un valor esperado fijo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: pedir "Trato" para un grupo de dos niños.
+export const demo = (trucoTrato) =>
+  trucoTrato('Trato', [
+    { nombre: 'Ada', edad: 8, altura: 130 },
+    { nombre: 'Linus', edad: 10, altura: 145 },
+  ]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

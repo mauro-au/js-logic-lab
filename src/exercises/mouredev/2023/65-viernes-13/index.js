@@ -9,14 +9,17 @@ export const enunciado = `Crea una función que sea capaz de detectar si existe 
 en el mes y el año indicados.
 - La función recibirá el mes y el año y retornará verdadero o falso.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado indica que la función recibe PRIMERO el mes (1-12) y después
+// el año, y retorna "true" solo si cae viernes 13 en ese mes.
+export const casos = [
+  { entrada: [1, 2023], esperado: true },
+  { entrada: [2, 2026], esperado: true },
+  { entrada: [11, 2026], esperado: true },
+  { entrada: [2, 2024], esperado: false },
+  { entrada: [5, 2024], esperado: false },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: ¿hay viernes 13 este mes?
+export const demo = (viernes13) => viernes13(11, 2026);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

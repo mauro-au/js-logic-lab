@@ -24,14 +24,19 @@ Ej: 1 Peloso pierde contra 1 Orco
     2 Pelosos empatan contra 1 Orco
     3 Pelosos ganan a 1 Orco`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado da libertad para modelar los datos: cada ejército es una
+// lista de pares [raza, cantidad] y el retorno es 'bien', 'mal' o 'empate'
+// según la suma del valor de las razas (como en los ejemplos del enunciado).
+export const casos = [
+  { entrada: [[['Pelosos', 1]], [['Orcos', 1]]], esperado: 'mal' }, // 1 vs 2
+  { entrada: [[['Pelosos', 2]], [['Orcos', 1]]], esperado: 'empate' }, // 2 vs 2
+  { entrada: [[['Pelosos', 3]], [['Orcos', 1]]], esperado: 'bien' }, // 3 vs 2
+  { entrada: [[['Sureños buenos', 1]], [['Goblins', 2]]], esperado: 'mal' }, // 2 vs 4
+  { entrada: [[['Elfos', 2], ['Enanos', 1]], [['Trolls', 1], ['Orcos', 2]]], esperado: 'bien' }, // 13 vs 9
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: el bando ganador de una batalla de razas (34 vs 18)
+export const demo = (batalla) =>
+  batalla([['Elfos', 5], ['Enanos', 3]], [['Orcos', 4], ['Trolls', 2]]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

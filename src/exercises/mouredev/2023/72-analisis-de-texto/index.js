@@ -13,14 +13,18 @@ export const enunciado = `Crea un programa que analice texto y obtenga:
 
 Todo esto utilizando un único bucle.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado pide 4 resultados con un único bucle, así que se devuelven
+// juntos en un objeto. El punto marca oración y no forma parte de la palabra;
+// la palabra más larga se devuelve tal cual aparece. Las medias de estos
+// textos son enteras, para no depender del redondeo.
+export const casos = [
+  { entrada: ['casa grande'], esperado: { palabras: 2, longitudMedia: 5, oraciones: 0, palabraMasLarga: 'grande' } },
+  { entrada: ['Pan dulce.'], esperado: { palabras: 2, longitudMedia: 4, oraciones: 1, palabraMasLarga: 'dulce' } },
+  { entrada: ['Tengo dos ojos.'], esperado: { palabras: 3, longitudMedia: 4, oraciones: 1, palabraMasLarga: 'Tengo' } },
+  { entrada: ['Ana ve un barco. El gran mar es azul.'], esperado: { palabras: 9, longitudMedia: 3, oraciones: 2, palabraMasLarga: 'barco' } },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: analiza un texto con dos oraciones
+export const demo = (analizar) => analizar('Mi casa. Tu jardín azul.');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

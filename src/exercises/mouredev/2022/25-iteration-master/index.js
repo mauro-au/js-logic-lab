@@ -9,14 +9,12 @@ export const enunciado = `Quiero contar del 1 al 100 de uno en uno (imprimiendo 
 ¿De cuántas maneras eres capaz de hacerlo?
 Crea el código para cada una de ellas.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// EXCEPCIÓN: reto creativo ("¿de cuántas maneras?") que solo imprime por consola,
+// sin una salida fija que comparar.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: contar del 1 al 100 (la numeración sale en los logs de la terminal).
+export const demo = (iterationMaster) =>
+  iterationMaster() ?? 'del 1 al 100 (ver logs de la terminal)';
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

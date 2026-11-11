@@ -27,14 +27,14 @@ export const enunciado = `Crea un programa capaz de gestionar una pieza de Tetri
 - Las acciones que se pueden aplicar a la pieza son: derecha, izquierda, abajo, rotar.
 - Debes tener en cuenta los límites de la pantalla de juego.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
-];
+// Excepción: juego interactivo (desplazar y rotar una pieza mostrando el
+// tablero en la terminal) → sin valor esperado fijo, modo libre con demo.
+export const casos = [];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Demo: mueve la pieza una vez a la derecha; el tablero se verá en la terminal.
+export const demo = (tetris) => {
+  tetris('derecha');
+  return '🎮 Tablero de Tetris mostrado en la terminal';
+};
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

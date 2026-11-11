@@ -22,14 +22,28 @@ gane cada punto del juego.
 - Si quieres, puedes controlar errores en la entrada de datos.
 - Consulta las reglas del juego si tienes dudas sobre el sistema de puntos.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// "Mostrar la partida por consola" lo modelamos retornando el array de líneas
+// (mismo criterio que el reto 01): una línea tras cada punto, con el formato
+// del enunciado: "15 - Love", "Deuce", "Ventaja P1", "Ha ganado el P1"…
+export const casos = [
+  {
+    // Ejemplo exacto del enunciado.
+    entrada: [['P1', 'P1', 'P2', 'P2', 'P1', 'P2', 'P1', 'P1']],
+    esperado: ['15 - Love', '30 - Love', '30 - 15', '30 - 30', '40 - 30', 'Deuce', 'Ventaja P1', 'Ha ganado el P1'],
+  },
+  {
+    // Victoria rápida del P1 en 4 puntos seguidos.
+    entrada: [['P1', 'P1', 'P1', 'P1']],
+    esperado: ['15 - Love', '30 - Love', '40 - Love', 'Ha ganado el P1'],
+  },
+  {
+    // Deuce y ventaja del P2 hasta ganar.
+    entrada: [['P2', 'P1', 'P2', 'P1', 'P1', 'P2', 'P2', 'P2']],
+    esperado: ['Love - 15', '15 - 15', '15 - 30', '30 - 30', '40 - 30', 'Deuce', 'Ventaja P2', 'Ha ganado el P2'],
+  },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: la partida de ejemplo del enunciado.
+export const demo = (tenis) => tenis(['P1', 'P1', 'P2', 'P2', 'P1', 'P2', 'P1', 'P1']);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

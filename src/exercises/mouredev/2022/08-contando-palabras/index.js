@@ -12,14 +12,17 @@ y que muestre el recuento final de todas ellas.
 - No se pueden utilizar funciones propias del lenguaje que
   lo resuelvan automáticamente.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// El enunciado no fija la forma de salida: devolvemos un único objeto con
+// palabra (en minúsculas) → número de apariciones.
+export const casos = [
+  { entrada: ['Hola hola mundo'], esperado: { hola: 2, mundo: 1 } },
+  { entrada: ['Hola, mundo! hola.'], esperado: { hola: 2, mundo: 1 } },
+  { entrada: ['El perro del perro de Pedro'], esperado: { el: 1, perro: 2, del: 1, de: 1, pedro: 1 } },
+  { entrada: ['una vez una'], esperado: { una: 2, vez: 1 } },
+  { entrada: [''], esperado: {} },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: recuento de la frase de ejemplo
+export const demo = (contar) => contar('Hola mundo, hola JavaScript');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

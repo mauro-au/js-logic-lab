@@ -13,14 +13,16 @@ export const enunciado = `Crea una función que encuentre todos los triples pita
 - Ejemplo: Los triples menores o iguales a 10 están
   formados por (3, 4, 5) y (6, 8, 10).`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Cada triple es [a, b, c] con a ≤ b ≤ c y la lista va ordenada por la
+// hipotenusa, incluyendo los múltiplos (6, 8, 10 aparece, como en el ejemplo).
+export const casos = [
+  { entrada: [1], esperado: [] },
+  { entrada: [5], esperado: [[3, 4, 5]] },
+  { entrada: [9], esperado: [[3, 4, 5]] }, // (6, 8, 10) queda fuera: 10 > 9
+  { entrada: [10], esperado: [[3, 4, 5], [6, 8, 10]] }, // ejemplo del enunciado
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: triples hasta 20.
+export const demo = (triples) => triples(20);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -14,14 +14,18 @@ en dos dimensiones.
   tardarn en lograrlo.
 - La función debe tener en cuenta que los objetos pueden no llegar a encontrarse.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Argumentos: inicio y velocidad de A, luego inicio y velocidad de B; cada
+// posición es [x, y]. Se retorna { punto: [x, y], tiempo } o null si nunca
+// se encuentran (mismo instante en x e y).
+export const casos = [
+  { entrada: [[0, 0], [1, 0], [10, 0], [-1, 0]], esperado: { punto: [5, 0], tiempo: 5 } }, // frontal
+  { entrada: [[0, 0], [1, 1], [4, 0], [-1, 1]], esperado: { punto: [2, 2], tiempo: 2 } }, // diagonal
+  { entrada: [[3, 4], [0, 0], [3, 4], [0, 0]], esperado: { punto: [3, 4], tiempo: 0 } }, // mismo origen
+  { entrada: [[0, 0], [1, 0], [0, 1], [1, 0]], esperado: null }, // paralelos: nunca se cruzan
+  { entrada: [[0, 0], [2, 0], [5, 5], [0, -1]], esperado: null }, // se cruzarían en instantes distintos
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: dos objetos que convergen en la diagonal.
+export const demo = (encuentro) => encuentro([0, 0], [1, 1], [10, 10], [-1, -1]);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

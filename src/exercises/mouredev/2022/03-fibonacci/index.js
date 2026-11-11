@@ -9,7 +9,7 @@ export const enunciado = `Escribe un programa que imprima los 50 primeros númer
 - La serie Fibonacci se compone por una sucesión de números en la que el siguiente siempre es la suma de los dos anteriores.
   0, 1, 1, 2, 3, 5, 8, 13...`;
 
-const casos = [
+export const casos = [
   { entrada: [0], esperado: [] },
   { entrada: [1], esperado: [0] },
   { entrada: [2], esperado: [0, 1] },
@@ -17,6 +17,6 @@ const casos = [
 ];
 
 // Reto principal: los 50 primeros términos
-const demo = (fibonacci) => fibonacci(50);
+export const demo = (fibonacci) => fibonacci(50);
 
 export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -18,14 +18,17 @@ representación con letras.
     Entrada: 6-666-88-777-33-3-33-888
     Salida: MOUREDEV`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: recibe las pulsaciones (bloques separados por guión) y retorna el
+// texto en MAYÚSCULAS, igual que la salida del ejemplo del enunciado.
+export const casos = [
+  { entrada: ['6-666-88-777-33-3-33-888'], esperado: 'MOUREDEV' }, // ejemplo
+  { entrada: ['6-66-666'], esperado: 'MNO' },
+  { entrada: ['2-22-222'], esperado: 'ABC' },
+  { entrada: ['4-444'], esperado: 'GI' },
+  { entrada: ['9999'], esperado: 'Z' }, // un solo bloque sin guiones
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: traducir las pulsaciones del ejemplo del enunciado.
+export const demo = (t9) => t9('6-666-88-777-33-3-33-888');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

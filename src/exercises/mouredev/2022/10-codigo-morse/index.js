@@ -14,14 +14,16 @@ morse y viceversa.
 - El alfabeto morse soportado será el mostrado en
   https://es.wikipedia.org/wiki/Código_morse.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// La raya del morse se escribe con el guion "-" (el "—" del enunciado es tipográfico).
+export const casos = [
+  { entrada: ['HOLA'], esperado: '.... --- .-.. .-' },
+  { entrada: ['SOS'], esperado: '... --- ...' },
+  { entrada: ['HOLA MUNDO'], esperado: '.... --- .-.. .-  -- ..- -. -.. ---' }, // dos espacios entre palabras
+  { entrada: ['... --- ...'], esperado: 'SOS' }, // morse → texto (se detecta solo)
+  { entrada: ['.... --- .-.. .-'], esperado: 'HOLA' },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: convertir texto natural a morse
+export const demo = (morse) => morse('HOLA MUNDO');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -8,14 +8,16 @@ export const tags = ['matemáticas'];
 export const enunciado = `Crea una función que reciba días, horas, minutos y segundos (como enteros)
 y retorne su resultado en milisegundos.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Contrato: [días, horas, minutos, segundos] → milisegundos.
+export const casos = [
+  { entrada: [0, 0, 0, 0], esperado: 0 },
+  { entrada: [0, 0, 0, 1], esperado: 1000 },
+  { entrada: [0, 1, 0, 0], esperado: 3600000 },
+  { entrada: [1, 0, 0, 0], esperado: 86400000 },
+  { entrada: [1, 2, 3, 4], esperado: 93784000 },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: convertir 1 día, 2 horas, 3 minutos y 4 segundos.
+export const demo = (convertir) => convertir(1, 2, 3, 4);
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });

@@ -12,14 +12,17 @@ de izquierda a derecha que de derecha a izquierda.
 NO se tienen en cuenta los espacios, signos de puntuación y tildes.
 Ejemplo: Ana lleva al oso la avellana.`;
 
-// Casos de prueba (opcional). Con la lista vacía el ejercicio corre en "modo libre":
-// cada solución se ejecuta sin argumentos y se muestran su retorno y sus console.log.
-// entrada = lista de argumentos; esperado = valor que debe retornar.
-const casos = [
-  // { entrada: [15], esperado: 'fizzbuzz' },
+// Se ignoran espacios, signos y tildes, y no distingue mayúsculas/minúsculas.
+export const casos = [
+  { entrada: ['Ana lleva al oso la avellana.'], esperado: true }, // ejemplo del enunciado
+  { entrada: ['Somos o no somos'], esperado: true },
+  { entrada: ['Dábale arroz a la zorra el abad'], esperado: true },
+  { entrada: ['Anita lava la tina'], esperado: true },
+  { entrada: ['hola'], esperado: false },
+  { entrada: ['¿Qué tal?'], esperado: false },
 ];
 
-// Opcional: reto principal. Descomenta y agrega demo a crearEjecutor({ ... }).
-// const demo = (solucion) => solucion(100);
+// Reto principal: comprobar la frase del enunciado
+export const demo = (esPalindromo) => esPalindromo('Ana lleva al oso la avellana.');
 
-export const ejecutar = crearEjecutor({ soluciones, casos });
+export const ejecutar = crearEjecutor({ soluciones, casos, demo });
