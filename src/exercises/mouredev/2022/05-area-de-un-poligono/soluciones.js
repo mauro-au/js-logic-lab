@@ -7,5 +7,12 @@
 // Solución 1: switch según el tipo de polígono
 // Idea: normalizar el tipo y elegir la fórmula. Tiempo: O(1)  Espacio: O(1)
 export function areaConSwitch(poligono) {
-
+  export function cadena(texto) {
+    let texto_final = [];
+    for (let i = 0; i < texto.length; i++) {
+      texto_final.unshift(texto[i]);
+    }
+    console.log(texto_final);
+    return texto_final.toString();
+  }
 }
