@@ -583,10 +583,6 @@ select { color: var(--one-cyan); cursor: pointer; }
   border-radius: 6px;
   overflow: hidden;
 }
-.editor-caja:focus-within {
-  border-color: var(--one-blue);
-}
-
 .editor-gutter {
   flex: 0 0 auto;
   box-sizing: border-box;
@@ -654,9 +650,12 @@ select { color: var(--one-cyan); cursor: pointer; }
   overflow-x: auto;
 }
 .editor-codigo::placeholder { color: #5c6370; opacity: 1; }
+/* El foco no pinta nada: la única señal es el cursor parpadeante.
+   `outline: none` explícito para que el stylesheet por defecto del
+   navegador no dibuje su anillo de foco en el textarea. */
+.editor-codigo:focus,
 .editor-codigo:focus-visible {
-  outline: 2px solid var(--accent-blue);
-  outline-offset: -2px;
+  outline: none;
 }
 
 .btn-editor-full { min-width: 32px; }

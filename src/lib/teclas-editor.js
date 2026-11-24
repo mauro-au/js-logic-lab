@@ -105,7 +105,8 @@ export function autoIndentar(texto, inicio, fin) {
   const antes = texto.slice(ls, inicio);
   const sangria = /^[\t ]*/.exec(antes)[0];
   const ultimo = antes.trimEnd().slice(-1);
-  const extra = '{(['.includes(ultimo) ? INDENT : '';
+  // `ultimo !== ''` es imprescindible: '{(['.includes('') es true
+  const extra = ultimo !== '' && '{(['.includes(ultimo) ? INDENT : '';
   const pos = inicio + 1 + sangria.length + extra.length;
   return {
     texto: texto.slice(0, inicio) + '\n' + sangria + extra + texto.slice(fin),

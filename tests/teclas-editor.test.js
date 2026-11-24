@@ -64,6 +64,25 @@ test('autoIndentar: añade 2 espacios extra tras una llave abierta', () => {
   assert.equal(r.inicio, 15);
 });
 
+test('autoIndentar: en texto vacío solo inserta el salto', () => {
+  const r = autoIndentar('', 0, 0);
+  assert.equal(r.texto, '\n');
+  assert.equal(r.inicio, 1);
+  assert.equal(r.fin, 1);
+});
+
+test('autoIndentar: en línea en blanco conserva la sangría sin sumar espacios', () => {
+  const r = autoIndentar('  ', 2, 2);
+  assert.equal(r.texto, '  \n  ');
+  assert.equal(r.inicio, 5);
+});
+
+test('autoIndentar: en columna 1 no mete espacios antes de la línea', () => {
+  const r = autoIndentar('hola', 0, 0);
+  assert.equal(r.texto, '\nhola');
+  assert.equal(r.inicio, 1);
+});
+
 test('alternarComentario: comenta las líneas de la selección', () => {
   const r = alternarComentario('uno\ndos', 0, 6);
   assert.equal(r.texto, '// uno\n// dos');
