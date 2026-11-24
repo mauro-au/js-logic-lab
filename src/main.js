@@ -617,7 +617,6 @@ function construirVista({ ejercicio, modulo, salidaHTML, error, registro, tiempo
               <textarea
                 id="editor-codigo"
                 class="editor-codigo"
-                rows="9"
                 spellcheck="false"
                 autocomplete="off"
                 autocapitalize="off"
@@ -949,8 +948,29 @@ function refrescarEditor(area) {
       .join('');
   }
 
+  ajustarAlturaEditor(area);
   actualizarPosEditor(area);
   sincronizarScroll(area);
+}
+
+/**
+ * El textarea crece (y encoge) con su contenido para que el cursor nunca
+ * se quede fuera de la caja. El <pre> y el gutter le siguen porque viven
+ * del mismo contenedor. En pantalla completa la altura la fija el CSS,
+ * así que solo se limpia la altura en línea.
+ */
+function ajustarAlturaEditor(area) {
+  if (area.closest('.card-editor.fullscreen')) {
+    area.style.height = '';
+    return;
+  }
+  area.style.height = 'auto';
+  area.style.height = `${area.scrollHeight}px`;
+  // Si el contenido sigue desbordando es porque una barra de scroll
+  // horizontal (líneas largas) se ha comido parte del alto: se le suma
+  // lo que falta para que no aparezca una barra vertical fantasma.
+  const desborda = area.scrollHeight - area.clientHeight;
+  if (desborda > 0) area.style.height = `${area.offsetHeight + desborda}px`;
 }
 
 /** El textarea manda: el <pre> y el gutter le siguen en ambos ejes. */
@@ -1153,6 +1173,7 @@ contenedorResultado.addEventListener(
       if (!(area instanceof HTMLTextAreaElement) || !area.value) return;
       if (!window.confirm('¿Borrar el código guardado de este ejercicio?')) return;
       area.value = '';
+      refrescarEditor(area); // sin input: repinta y encoge el alto al instante
       guardarCodigoDe(rutaActivaGlobal, '');
       ejecutarEjercicio(rutaActivaGlobal);
     }
@@ -1258,6 +1279,24 @@ contenedorResultado.addEventListener(
   },
   { signal }
 );
+
+// El salto de línea cambia con el breakpoint de 900px (la fuente pasa a 16px):
+// al redimensionar la ventana volvemos a medir el editor activo
+window.addEventListener(
+  'resize',
+  () => {
+    const area = contenedorResultado.querySelector('.editor-codigo');
+    if (area instanceof HTMLTextAreaElement) ajustarAlturaEditor(area);
+  },
+  { signal }
+);
+
+// Con la fuente monoespaciada cargada cambian los anchos de línea (y con
+// ellos la barra horizontal): re-medimos por si acaso
+document.fonts?.ready.then(() => {
+  const area = contenedorResultado.querySelector('.editor-codigo');
+  if (area instanceof HTMLTextAreaElement) ajustarAlturaEditor(area);
+});
 
 selectorEjercicios.addEventListener(
   'change',

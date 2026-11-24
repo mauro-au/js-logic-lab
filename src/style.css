@@ -637,7 +637,8 @@ select { color: var(--one-cyan); cursor: pointer; }
   width: 100%;
   box-sizing: border-box;
   min-height: 170px;
-  resize: vertical;
+  /* El alto lo gobierna el auto-crecimiento (ajustarAlturaEditor en main.js) */
+  resize: none;
   background: transparent;
   color: transparent;
   caret-color: #abb2bf;
